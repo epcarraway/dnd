@@ -1,0 +1,10 @@
+*.log
+__pycache__/
+*.pyc
+.vscode/settings.json
+__pycache__/*
+*.out
+*.png
+temp_*
+output_*
+config.json
