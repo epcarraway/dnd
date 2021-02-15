@@ -67,8 +67,8 @@
             });
             
             var layerGroup = L.layerGroup().addTo(map);
-            var basemaps = {"Map background": lyr, "Without background": white}
-            var overlaymaps = {"Locations": layerGroup}
+            var basemaps = {"Map background": lyr, "Without background": white};
+            var overlaymaps = {"Locations": layerGroup};
 
             // Title
             var title = L.control();
@@ -126,9 +126,7 @@
                 query1 = new google.visualization.Query(queryString);
                 query1.send(chartfunction);
                 function chartfunction (response) {
-                    // Get and sort data
-                    var data1 = response.getDataTable();
-                    console.log(data1)
+                    // Get and map data
                     var data = response.getDataTable();
                     
                     for (i=0; i<data.getNumberOfRows(); i++) {
@@ -136,11 +134,11 @@
                         var lat1 = data.getValue(i, 1);
                         var lng1 = data.getValue(i, 2);
                         var desc1 = data.getValue(i, 3);
-                        console.log(name1, lat1, lng1, desc1)
                         L.marker([lng1, lat1],{
                             riseOnHover: true
                         }).addTo(layerGroup)
-                            .bindPopup("<b>" + name1 + "</b><br />" + desc1);
+                            .bindPopup("<b>" + name1 + "</b><br />" + desc1)
+                            .bindTooltip("<b>" + name1 + "</b><br />" + desc1);
                     }
 
                 }
