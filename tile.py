@@ -1,6 +1,9 @@
 # Import modules
+try:
+    from osgeo import gdal
+except:
+    import gdal
 import gdal2tiles
-from osgeo import gdal
 import PIL
 import os
 

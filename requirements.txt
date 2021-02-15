@@ -1,6 +1,6 @@
 # Usage: pip install -r requirements.txt
-gdal
-osgeo
+numpy
+GDAL==3.0.4
 gdal2tiles
 pillow
 azure-storage-blob
