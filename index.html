@@ -100,7 +100,7 @@
             var title = L.control({position: 'bottomleft'});
             title.onAdd = function(map) {
                 this._div = L.DomUtil.create('div', 'ctl src');
-                this.id = 'll_title_id'
+                this.setAttribute("id", "ll_title_id");
                 this.update();
                 return this._div;
             };

@@ -11,7 +11,7 @@ def upload_folder_to_blob(folder_path, config):
         config['AZURE_STORAGE_CONNECTION_STRING'])
     # Create the container
     container_client = blob_service_client.create_container(config['AZURE_STORAGE_CONTAINER'])
-    for r,d,f in os.walk(folder_path):        
+    for r,d,f in os.walk(folder_path):
         if f:
             for file in f:
                 file_path_on_azure = os.path.join(r,file).replace(folder_path,"")
