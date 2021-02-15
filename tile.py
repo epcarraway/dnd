@@ -7,13 +7,14 @@ import gdal2tiles
 import PIL
 import os
 
+# Set input/output for rescaling and tiling
 input_map = "input.png"
-rescale_factor = 1.5
+rescale_factor = 1
 ll_lat = 6.95
 ll_lon = 6.25
 tar_height = .1
 digits = 9
-zoom = '6-12'
+zoom = '8-18'
 
 # Get image dimensions
 img = PIL.Image.open(input_map)
@@ -43,4 +44,6 @@ options = {'zoom': zoom, 'resume': True}
 gdal2tiles.generate_tiles('temp_map.tif', 'temp_map', srs='EPSG:4326', **options)
 print('tiles created...')
 os.remove('temp_map.tif')
+if rescale_factor != 1:
+    os.remove('temp_map.png')
 print('temporary files removed...')

@@ -60,7 +60,7 @@
             // Overlay layers (TMS)
             //var lyr = L.tileLayer("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEX///+nxBvIAAAAH0lEQVQYGe3BAQ0AAADCIPunfg43YAAAAAAAAAAA5wIhAAAB9aK9BAAAAABJRU5ErkJggg==");
             var lyr = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd/{z}/{x}/{y}.png', 
-                {tms: true, opacity: 1, maxNativeZoom: 10, maxZoom: 20, attribution: ""});
+                {tms: true, opacity: 1, maxNativeZoom: 18, maxZoom: 20, attribution: ""});
             var lyr2 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd2/{z}/{x}/{y}.png', 
                 {tms: true, opacity: 1, maxNativeZoom: 12, maxZoom: 20, attribution: ""});
             
@@ -76,7 +76,7 @@
                     //north east
                     [10, 15]
                     ], 
-                layers: [lyr]
+                layers: [lyr, lyr2]
             });
             
             var layerGroup = L.layerGroup().addTo(map);
