@@ -60,6 +60,7 @@
             // Overlay layers (TMS)
             //var lyr = L.tileLayer("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEX///+nxBvIAAAAH0lEQVQYGe3BAQ0AAADCIPunfg43YAAAAAAAAAAA5wIhAAAB9aK9BAAAAABJRU5ErkJggg==");
             var lyr = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd/{z}/{x}/{y}.png', {tms: true, opacity: 1, attribution: ""});
+            var lyr2 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd2/{z}/{x}/{y}.png', {tms: true, opacity: 1, attribution: ""});
             
             // Map
             var map = L.map("map", {
@@ -77,7 +78,7 @@
             });
             
             var layerGroup = L.layerGroup().addTo(map);
-            var basemaps = {"Map background": lyr, "Without background": white};
+            var basemaps = {"Map background": lyr, "World background": lyr2, "Without background": white};
             var overlaymaps = {"Locations": layerGroup};
 
             // Title
