@@ -65,9 +65,10 @@
                     ], 
                 layers: [lyr]
             });
-
+            
+            var layerGroup = L.layerGroup().addTo(map);
             var basemaps = {"Map background": lyr, "Without background": white}
-            var overlaymaps = {}
+            var overlaymaps = {"Locations": layerGroup}
 
             // Title
             var title = L.control();
@@ -105,7 +106,7 @@
             function onMapClick(e) {
                 popup
                     .setLatLng(e.latlng)
-                    .setContent(e.latlng.lat.toPrecision(4).toString() +', ' + e.latlng.lng.toPrecision(4).toString())
+                    .setContent(e.latlng.lng.toPrecision(4).toString() +', ' + e.latlng.lat.toPrecision(4).toString())
                     .openOn(map);
             }
 
@@ -136,7 +137,7 @@
                         var lng1 = data.getValue(i, 2);
                         var desc1 = data.getValue(i, 3);
                         console.log(name1, lat1, lng1, desc1)
-                        L.marker([lng1, lat1]).addTo(map)
+                        L.marker([lng1, lat1]).addTo(layerGroup)
                             .bindPopup("<b>" + name1 + "</b><br />" + desc1);
                     }
 
