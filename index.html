@@ -76,12 +76,12 @@
                     //north east
                     [10, 15]
                     ], 
-                layers: [lyr, lyr2]
+                layers: [lyr2]
             });
             
             var layerGroup = L.layerGroup().addTo(map);
-            var basemaps = {"Map background": lyr, "World background": lyr2, "Without background": white};
-            var overlaymaps = {"Locations": layerGroup};
+            var basemaps = {"World background": lyr2, "No background": white};
+            var overlaymaps = {"Locations": layerGroup, "Waterdeep Map": lyr};
 
             // Title
             var title = L.control();
