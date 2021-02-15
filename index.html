@@ -128,10 +128,16 @@
                     // Get and sort data
                     var data1 = response.getDataTable();
                     console.log(data1)
-                    var data = data1.rows().data();
-                    data.each(function (value, index) {
-                        console.log(`For index ${index}, data value is ${value}`);
-                    });
+                    var data = response.getDataTable();
+                    
+                    for (i=0; i<data.getNumberOfRows(); i++) {
+                        var name1 = data.getValue(i, 0);
+                        var lat1 = data.getValue(i, 1);
+                        var lng1 = data.getValue(i, 2);
+                        var desc1 = data.getValue(i, 3);
+                        console.log(name1, lat1, lng1, desc1)
+                    }
+
                     var marker = L.marker([5, 5]).addTo(map);
                 }
             }
