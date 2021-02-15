@@ -60,16 +60,16 @@
             // Overlay layers (TMS)
             //var lyr = L.tileLayer("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEX///+nxBvIAAAAH0lEQVQYGe3BAQ0AAADCIPunfg43YAAAAAAAAAAA5wIhAAAB9aK9BAAAAABJRU5ErkJggg==");
             var lyr = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd/{z}/{x}/{y}.png', 
-                {tms: true, opacity: 1, maxNativeZoom: 16, maxZoom: 22, attribution: ""});
+                {tms: true, opacity: 1, maxNativeZoom: 16, maxZoom: 30, attribution: ""});
             var lyr2 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd2/{z}/{x}/{y}.png', 
-                {tms: true, opacity: 1, maxNativeZoom: 16, maxZoom: 22, attribution: ""});
+                {tms: true, opacity: 1, maxNativeZoom: 16, maxZoom: 30, attribution: ""});
             
             // Map
             var map = L.map("map", {
                 center: [5.0, 3.425],
                 zoom: 8,
                 minZoom: 7,
-                maxZoom: 10,
+                maxZoom: 30,
                 maxBounds: [
                     //south west
                     [0, 0],
