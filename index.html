@@ -104,9 +104,12 @@
             var popup = L.popup();
 
             function onMapClick(e) {
+                lng2 = e.latlng.lng.toPrecision(4).toString()
+                lat2 = e.latlng.lat.toPrecision(4).toString()
+                content = "<table><tr><td>" + lng2 + "</td><td>" + lat2 + "</td></tr></table>"
                 popup
                     .setLatLng(e.latlng)
-                    .setContent(e.latlng.lng.toPrecision(4).toString() +', ' + e.latlng.lat.toPrecision(4).toString())
+                    .setContent(content)
                     .openOn(map);
             }
 
@@ -128,7 +131,6 @@
                 function chartfunction (response) {
                     // Get and map data
                     var data = response.getDataTable();
-                    
                     for (i=0; i<data.getNumberOfRows(); i++) {
                         var name1 = data.getValue(i, 0);
                         var lat1 = data.getValue(i, 1);
@@ -138,7 +140,7 @@
                             riseOnHover: true
                         }).addTo(layerGroup)
                             .bindPopup("<b>" + name1 + "</b><br />" + desc1)
-                            .bindTooltip("<b>" + name1 + "</b><br />" + desc1);
+                            .bindTooltip("<b>" + name1 + "</b>");
                     }
 
                 }
