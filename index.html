@@ -59,8 +59,10 @@
 
             // Overlay layers (TMS)
             //var lyr = L.tileLayer("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEX///+nxBvIAAAAH0lEQVQYGe3BAQ0AAADCIPunfg43YAAAAAAAAAAA5wIhAAAB9aK9BAAAAABJRU5ErkJggg==");
-            var lyr = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd/{z}/{x}/{y}.png', {tms: true, opacity: 1, attribution: ""});
-            var lyr2 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd2/{z}/{x}/{y}.png', {tms: true, opacity: 1, attribution: ""});
+            var lyr = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd/{z}/{x}/{y}.png', 
+                {tms: true, opacity: 1, maxNativeZoom: 16, maxZoom: 22, attribution: ""});
+            var lyr2 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd2/{z}/{x}/{y}.png', 
+                {tms: true, opacity: 1, maxNativeZoom: 16, maxZoom: 22, attribution: ""});
             
             // Map
             var map = L.map("map", {
@@ -72,7 +74,7 @@
                     //south west
                     [0, 0],
                     //north east
-                    [10, 6]
+                    [10, 15]
                     ], 
                 layers: [lyr]
             });
@@ -115,8 +117,8 @@
             var popup = L.popup();
 
             function onMapClick(e) {
-                lng2 = e.latlng.lng.toPrecision(4).toString()
-                lat2 = e.latlng.lat.toPrecision(4).toString()
+                lng2 = e.latlng.lng.toPrecision(7).toString()
+                lat2 = e.latlng.lat.toPrecision(7).toString()
                 content = "<table><tr><td>" + lng2 + "</td><td>" + lat2 + "</td></tr></table>"
                 popup
                     .setLatLng(e.latlng)

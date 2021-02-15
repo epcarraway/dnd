@@ -25,7 +25,7 @@ ds = None
 print('geoTIFF created...')
 
 # Create tiles
-options = {'zoom': (6, 16), 'resume': True, 'processes': 4}
+options = {'zoom': (6, 19), 'resume': True, 'processes': 4}
 gdal2tiles.generate_tiles('temp_map.tif', 'temp_map', srs='EPSG:4326')
 print('tiles created...')
 os.remove('temp_map.tif')
