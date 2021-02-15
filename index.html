@@ -100,7 +100,6 @@
             var title = L.control({position: 'bottomleft'});
             title.onAdd = function(map) {
                 this._div = L.DomUtil.create('div', 'ctl src');
-                this.setAttribute("id", "ll_title_id");
                 this.update();
                 return this._div;
             };
@@ -131,9 +130,9 @@
 
             map.on('moveend', function(e) {
                 var zoomLevel = map.getZoom();
-                var ll_title_id = document.getElementById("ll_title_id");
-                ll_title_id.innerHTML = "Zoom Level: " + zoomLevel.toString()
-                ll_title_id.update();
+                var ll_title = document.getElementsByClassName('ctl src')[0];
+                ll_title.innerHTML = "Zoom Level: " + zoomLevel.toString()
+                ll_title.update();
              });
         </script>
 
