@@ -127,6 +127,11 @@
                     // Get and sort data
                     var data1 = response.getDataTable();
                     console.log(data1)
+                    var data = data1.rows().data();
+                    data.each(function (value, index) {
+                        console.log(`For index ${index}, data value is ${value}`);
+                    });
+                    var marker = L.marker([5, 5]).addTo(map);
                 }
             }
         </script>
