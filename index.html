@@ -67,7 +67,7 @@
             // Map
             var map = L.map("map", {
                 center: [6.3, 7.0],
-                zoom: 12,
+                zoom: 14,
                 minZoom: 6,
                 maxZoom: 20,
                 maxBounds: [
@@ -113,7 +113,7 @@
             L.control.layers(basemaps, overlaymaps, {collapsed: false}).addTo(map);
 
             // Fit to overlay bounds (SW and NE points with (lat, lon))
-            map.fitBounds([[6.35, 6.95], [6.25, 7.05]]);
+            map.fitBounds([[6.287, 6.967], [6.315, 6.99]]);
             
             var popup = L.popup();
 
