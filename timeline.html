@@ -106,15 +106,15 @@
                 console.log(data);
                 var data2 = [];
                 for (i=0; i<data.getNumberOfRows(); i++) {
-                        data2[index] = {};
+                        data2[i] = {};
                         var id1 = data.getValue(i, 0);
                         var content1 = data.getValue(i, 1);
                         var start1 = data.getValue(i, 2);
                         var end1 = data.getValue(i, 3);
-                        data2[index]["id"] = id1;
-                        data2[index]["content"] = content1;
-                        data2[index]["start"] = start1;
-                        data2[index]["end"] = end1;
+                        data2[i]["id"] = id1;
+                        data2[i]["content"] = content1;
+                        data2[i]["start"] = start1;
+                        data2[i]["end"] = end1;
                     }
                 
                 console.log(data2)
