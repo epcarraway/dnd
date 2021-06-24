@@ -101,10 +101,11 @@
             query1.send(chartfunction);
             function chartfunction (response) {
                 // Get and map data
+                document.write(JSON.stringify(response));
                 var data = response.getDataTable();
-                consol.log(data)
-                items.add(data);
-                timeline.fit();
+                console.log(data)
+                //items.add(data);
+                //timeline.fit();
             }
         }
         </script>
