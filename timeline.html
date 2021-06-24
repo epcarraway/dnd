@@ -7,35 +7,23 @@
 
         <style>
             body, html {
-            font-family: arial, sans-serif;
-            font-size: 11pt;
+                font-family: arial, sans-serif;
+                font-size: 11pt;
             }
 
-                textarea {
-                width: 800px;
-                height: 200px;
-                }
-
-                .buttons {
+            .buttons {
                 margin: 20px 0;
-                }
+            }
 
-                .buttons input {
+            .buttons input {
                 padding: 10px;
-                }
-                .vis-item {
+            }
+
+            .vis-item {
                 border-color: orange;
                 background-color: yellow;
             }
-                
-                .vis-time-axis .grid.vis-odd {
-                    background: #f5f5f5;
-                }
-
-                .vis-time-axis .grid.vis-even {
-                    background: #aaf5f5;
-                }
-            </style>
+        </style>
 
         <!-- Load the AJAX API aka Google API  -->
         <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -82,8 +70,8 @@
             showCurrentTime: false,
             moment: function(date) {
                 return vis.moment(date);
-        },
-        locale: 'harptos_us'
+            },
+            locale: 'harptos_us'
         };
         var timeline = new vis.Timeline(container, items, options);
 
@@ -100,10 +88,8 @@
             query1 = new google.visualization.Query(queryString);
             query1.send(chartfunction);
             function chartfunction (response) {
-                // Get and map data
-                //document.write(JSON.stringify(response));
+                // Get and plot data
                 var data = response.getDataTable();
-                console.log(data);
                 var data2 = [];
                 for (i=0; i<data.getNumberOfRows(); i++) {
                         data2[i] = {};
@@ -118,9 +104,6 @@
                             data2[i]["end"] = end1;
                         };
                     }
-                
-                console.log(data2)
-                //document.write(JSON.stringify(data2));
                 items.add(data2);
                 timeline.fit();
             }
