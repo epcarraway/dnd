@@ -101,7 +101,7 @@
             query1.send(chartfunction);
             function chartfunction (response) {
                 // Get and map data
-                document.write(JSON.stringify(response));
+                //document.write(JSON.stringify(response));
                 var data = response.getDataTable();
                 console.log(data);
                 var data2 = [];
@@ -118,9 +118,9 @@
                     }
                 
                 console.log(data2)
-                document.write(JSON.stringify(data2));
-                //items.add(data);
-                //timeline.fit();
+                //document.write(JSON.stringify(data2));
+                items.add(data2);
+                timeline.fit();
             }
         }
         </script>
