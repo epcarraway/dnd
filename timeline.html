@@ -103,7 +103,10 @@
                 // Get and map data
                 document.write(JSON.stringify(response));
                 var data = response.getDataTable();
-                console.log(data)
+                console.log(data);
+                var data2 = data.toJSON();
+                console.log(data2)
+                document.write(JSON.stringify(data2));
                 //items.add(data);
                 //timeline.fit();
             }
