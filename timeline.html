@@ -100,7 +100,7 @@
                         var content1 = data.getValue(i, 0).replace(/\n/g, "<br>");
                         var start1 = data.getValue(i, 1);
                         var end1 = data.getValue(i, 2);
-                        var content1 = vis.moment(start1).format('MMMM D, YYYY GGGG, h:mm a') + "<br>" + content1;
+                        var content1 = vis.moment(start1).format('MMMM D, YYYY GGGGG, h:mm a') + "<br>" + content1;
                         data2[i]["id"] = i;
                         data2[i]["content"] = content1;
                         data2[i]["start"] = start1;
