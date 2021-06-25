@@ -72,6 +72,7 @@
             moment: function(date) {
                 return vis.moment(date);
             },
+            order: id,
             locale: 'harptos_us'
         };
         var timeline = new vis.Timeline(container, items, options);
@@ -94,12 +95,11 @@
                 var data2 = [];
                 for (i=0; i<data.getNumberOfRows(); i++) {
                         data2[i] = {};
-                        var content1 = data.getValue(i, 0);
+                        var content1 = data.getValue(i, 0).replace(/\n/g, "<br>");
                         var start1 = data.getValue(i, 1);
                         var end1 = data.getValue(i, 2);
                         data2[i]["id"] = i;
-                        console.log(content1)
-                        data2[i]["content"] = content1.replace(/\n/g, "<br>");
+                        data2[i]["content"] = ;
                         data2[i]["start"] = start1;
                         if (start1 != end1) {
                             data2[i]["end"] = end1;
