@@ -99,7 +99,7 @@
                         var end1 = data.getValue(i, 2);
                         data2[i]["id"] = i;
                         console.log(content1)
-                        data2[i]["content"] = content1;
+                        data2[i]["content"] = content1.replace(/\n, "<br>");
                         data2[i]["start"] = start1;
                         if (start1 != end1) {
                             data2[i]["end"] = end1;
