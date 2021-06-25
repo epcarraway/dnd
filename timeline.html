@@ -72,7 +72,9 @@
             moment: function(date) {
                 return vis.moment(date);
             },
-            order: id,
+            order: function(date) {
+                return vis.moment(date);
+            },
             locale: 'harptos_us'
         };
         var timeline = new vis.Timeline(container, items, options);
