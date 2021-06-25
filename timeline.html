@@ -93,11 +93,10 @@
                 var data2 = [];
                 for (i=0; i<data.getNumberOfRows(); i++) {
                         data2[i] = {};
-                        var id1 = data.getValue(i, 0);
-                        var content1 = data.getValue(i, 1);
-                        var start1 = data.getValue(i, 2);
-                        var end1 = data.getValue(i, 3);
-                        data2[i]["id"] = id1;
+                        var content1 = data.getValue(i, 0);
+                        var start1 = data.getValue(i, 1);
+                        var end1 = data.getValue(i, 2);
+                        data2[i]["id"] = i;
                         data2[i]["content"] = content1;
                         data2[i]["start"] = start1;
                         if (start1 != end1) {
