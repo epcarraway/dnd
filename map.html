@@ -1,7 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
+    <link rel="icon" href="favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Waterdeep Project">
     <meta name="author" content="Evan Carraway">
@@ -12,6 +14,25 @@
 
     <!-- Custom styles for this template -->
     <link href="css/jumbotron.css" rel="stylesheet">
+
+    <!-- Load the AJAX API aka Google API  -->
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script>
+  
+    <style type="text/css">
+      html, body {
+          height:100%;
+      }
+      #map {
+        height: 90%;
+      }
+    </style>
 
   </head>
 
@@ -24,10 +45,10 @@
       </button>
        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
+          <li class="nav-item">
             <a class="nav-link" href="index.html">Home</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item active">
             <a class="nav-link" href="map.html">Map</a>
           </li>
           <li class="nav-item">
@@ -46,42 +67,14 @@
       </div>
     </nav>
 
-    <!-- Main Chart Title Area -->
-    <main role="main">
-	  <!-- Main text body -->
-      <div class="container" style="padding-top:30px;">
-       <h1 style="text-align:center;padding-top:50px;vertical-align:middle">Waterdeep</h1>
-			<p style="padding-top:20px;"> Waterdeep is one of the largest cities in Faerun. It is the City of Splendor and filled with riches and magic. You and your fellow adventurers have come to the city to find your fortunes.
-      </p>
-        </div>
-        <hr>
-      </div>
-	  <div class="jumbotron1">
-        <div class="container">
-		  <div class="row" style="text-align:center;padding-top:50px;vertical-align:middle">
-			<div class="col-xs-6 col-md-4" style="vertical-align:middle;padding-top:15px;">
-				<a href="map.html" class="btn btn-primary btn-lg btn-block" role="button">Map</a>
-				<p style="vertical-align:middle;padding-top:15px;">Explore the world map and points of interest in Waterdeep</p>
-			</div>
-			<div class="col-xs-6 col-md-4" style="vertical-align:middle;padding-top:15px;">
-				<a href="timeline.html" class="btn btn-primary btn-lg btn-block" role="button">Timeline</a>
-				<p style="vertical-align:middle;padding-top:15px;">Explore the timeline during the events of Waterdeep</p>
-			</div>
-			<div class="col-xs-6 col-md-4" style="vertical-align:middle;padding-top:15px;">
-				<a href="network.html" class="btn btn-primary btn-lg btn-block" role="button">Network</a>
-				<p style="vertical-align:middle;padding-top:15px;">Navigate the network of characters and groups in Waterdeep</p>
-			</div>
-			
-		  </div><!-- row -->
-          <h1 class="display-4" id="title_div" style="text-align:center;padding-top:5px;"></h1>
-          <div class="mr-md-3 pt-3 px-3 pt-md-5 px-md-5 svg-container" id="total_div"></div>
-        </div>
-      </div>
-    </main>
-    <!-- Footer Area -->
+    
+      <div class="container-fluid" id="map"></div>
+      <script type="text/javascript" src="js/map.js"></script>
+	
+	<!-- Footer Area -->
     <footer class="fixed-bottom container-fluid">
       <hr>
-      <p>© Evan Carraway 2021</p>
+      <p>© Carraway 2021</p>
     </footer>
 
     <!-- Bootstrap core JavaScript
