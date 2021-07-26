@@ -12,7 +12,7 @@ var lyr2 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd2/{z}/{x}/{y
     {tms: true, opacity: 1, minZoom: 4, minNativeZoom: 6, maxNativeZoom: 12, maxZoom: 20, attribution: ""});
 
 // Map
-var map = L.map("map", {
+var map = L.map("mapid", {
     center: [6.3, 7.0],
     zoom: 14,
     minZoom: 6,
@@ -30,18 +30,6 @@ var layerGroup = L.layerGroup().addTo(map);
 lyr.addTo(map);
 var basemaps = {"World background": lyr2, "No background": white};
 var overlaymaps = {"Locations": layerGroup, "Waterdeep Map": lyr};
-
-// Title
-var title = L.control();
-title.onAdd = function(map) {
-    this._div = L.DomUtil.create('div', 'ctl title');
-    this.update();
-    return this._div;
-};
-title.update = function(props) {
-    this._div.innerHTML = "Waterdeep";
-};
-title.addTo(map);
 
 // Note
 var src = 'Waterdeep';

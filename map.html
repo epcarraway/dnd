@@ -1,23 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-100">
   <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <meta charset="utf-8" />
-    <link rel="icon" href="favicon.ico" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-    <meta name="description" content="Waterdeep Project" />
-    <meta name="author" content="Evan Carraway" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="favicon.ico">
+    <meta name="description" content="Waterdeep Project">
+    <meta name="author" content="Evan Carraway">
     <title>Waterdeep</title>
-
     <!-- Bootstrap core CSS -->
-    <link href="css/bootstrap.css" rel="stylesheet" />
-
-    <!-- Custom styles for this template -->
-    <link href="css/jumbotron.css" rel="stylesheet" />
-
+    <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="css/sticky-footer-navbar.css" rel="stylesheet">
     <!-- Load the AJAX API aka Google API  -->
     <script src="https://www.gstatic.com/charts/loader.js"></script>
     <!-- Leaflet -->
@@ -32,82 +25,41 @@
       integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
       crossorigin=""
     ></script>
-
     <style type="text/css">
       html,
       body {
+        padding-top: 28px; 
         height: 100%;
       }
-      #map {
-        height: 90%;
+      #mapid {
+        height: 95%;
+        padding: 10px;
       }
     </style>
   </head>
 
-  <body>
-    <!-- Main navigation bar -->
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="index.html">Waterdeep</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarsExampleDefault"
-        aria-controls="navbarsExampleDefault"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="index.html">Home</a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="map.html">Map</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="timeline.html">Timeline</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="network.html">Network</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="about.html">About</a>
-          </li>
-        </ul>
-        <form class="form-inline my-2 my-lg-0">
-          <a class="navbar-brand" href="index.html">Waterdeep</a>
-        </form>
+  <body class="d-flex flex-column h-100">
+    <!-- Header template -->
+    <div id="header"></div>
+    <div class="container-fluid" id="mapid"></div>
+
+   <!-- Footer Area -->
+    <footer class="footer mt-auto py-3 bg-white">
+      <div class="container-fluid">
+        <span class="text-muted">© Carraway 2021</span>
       </div>
-    </nav>
-
-    <div class="container-fluid" id="map"></div>
-    <script type="text/javascript" src="js/map.js"></script>
-
-    <!-- Footer Area -->
-    <footer class="fixed-bottom container-fluid">
-      <hr />
-      <p>© Carraway 2021</p>
     </footer>
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script
-      src="js/jquery-3.js"
-      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-      crossorigin="anonymous"
-    ></script>
+    <!-- Bootstrap core JavaScript-->
+    <script src="js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="js/jquery-3.6.0.js"></script> 
     <script>
-      window.jQuery ||
-        document.write(
-          '<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>'
-        );
+      $(function(){
+        $("#header").load("header.html", function(){
+          document.getElementById("map").classList.add('active');
+        });
+      });
     </script>
-    <script src="js/popper.js"></script>
-    <script type="text/javascript" src="js/jquery.min.js"></script>
-    <script type="text/javascript" src="js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/map.js"></script>
   </body>
 </html>
