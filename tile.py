@@ -8,11 +8,11 @@ import PIL
 import os
 
 # Set input/output for rescaling and tiling
-input_map = "input.png"
+input_map = "input.jpg"
 rescale_factor = 1
-ll_lat = 6.95
-ll_lon = 6.25
-tar_height = .1
+ll_lat = 9.15 # 6.95
+ll_lon = 5.45 # 6.25
+tar_height = .55
 digits = 9
 zoom = '8-18'
 
