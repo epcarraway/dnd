@@ -14,6 +14,8 @@ var lyr3 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd3/{z}/{x}/{y
     {tms: true, opacity: 1, minZoom: 4, minNativeZoom: 8, maxNativeZoom: 13, maxZoom: 20, attribution: ""});
 var lyr4 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd4/{z}/{x}/{y}.png', 
     {tms: true, opacity: 1, minZoom: 4, minNativeZoom: 9, maxNativeZoom: 14, maxZoom: 20, attribution: ""});
+var lyr5 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd5/{z}/{x}/{y}.png', 
+    {tms: true, opacity: 1, minZoom: 4, minNativeZoom: 9, maxNativeZoom: 14, maxZoom: 20, attribution: ""});
 
 // Map
 var map = L.map("mapid", {
@@ -34,8 +36,9 @@ var layerGroup = L.layerGroup().addTo(map);
 lyr.addTo(map);
 lyr3.addTo(map);
 lyr4.addTo(map);
+lyr5.addTo(map);
 var basemaps = {"World background": lyr2, "No background": white};
-var overlaymaps = {"Locations": layerGroup, "Waterdeep Map": lyr, "Icewind Dale Map": lyr3, "Waterdeep Map": lyr, "Luskan Map": lyr4};
+var overlaymaps = {"Locations": layerGroup, "Waterdeep Map": lyr, "Icewind Dale Map": lyr3, "Neverwinter Map": lyr5, "Luskan Map": lyr4};
 
 // Note
 var src = 'Waterdeep';
