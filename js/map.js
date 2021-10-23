@@ -11,7 +11,7 @@ var lyr = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd/{z}/{x}/{y}.
 var lyr2 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd2/{z}/{x}/{y}.png', 
     {tms: true, opacity: 1, minZoom: 4, minNativeZoom: 6, maxNativeZoom: 12, maxZoom: 20, attribution: ""});
 var lyr3 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd3/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 4, minNativeZoom: 6, maxNativeZoom: 12, maxZoom: 20, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 4, minNativeZoom: 8, maxNativeZoom: 13, maxZoom: 20, attribution: ""});
 
 // Map
 var map = L.map("mapid", {
