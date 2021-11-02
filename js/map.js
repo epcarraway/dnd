@@ -77,6 +77,10 @@ map.on('moveend', function(e) {
     var zoomLevel = map.getZoom();
     var ll_title = document.getElementsByClassName('ctl src')[0];
     ll_title.innerHTML = "Zoom Level: " + zoomLevel.toString();
+    var searchParams = new URLSearchParams(window.location.search);
+    searchParams.set("zoomLevel", zoomLevel);
+    var newRelativePathQuery = window.location.pathname + '?' + searchParams.toString();
+    history.pushState(null, '', newRelativePathQuery);
     });
     
 // Load the visualization API and the corechart packages
