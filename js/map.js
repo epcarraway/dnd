@@ -62,8 +62,8 @@ var searchParams = new URLSearchParams(window.location.search);
 if (searchParams.has("zoomLevel") && searchParams.has("x") && searchParams.has("y")) {
     zoomLevel = searchParams.get("zoomLevel")
     lat = searchParams.get("lat")
-    lon = searchParams.get("lon")
-    map.setView([lat, lon], zoomLevel);
+    lng = searchParams.get("lng")
+    map.setView([lat, lng], zoomLevel);
 } else if (searchParams.has("zoomLevel")) {
     zoomLevel = searchParams.get("zoomLevel")
     map.fitBounds([[6.287, 6.967], [6.315, 6.99]]);
@@ -89,13 +89,13 @@ map.on('click', onMapClick);
 map.on('moveend', function(e) {
     var zoomLevel = map.getZoom();
     var lat = map.getCenter()["lat"];
-    var lon = map.getCenter()["lon"];
+    var lng = map.getCenter()["lng"];
     var ll_title = document.getElementsByClassName('ctl src')[0];
     ll_title.innerHTML = "Zoom Level: " + zoomLevel.toString();
     var searchParams = new URLSearchParams(window.location.search);
     searchParams.set("zoomLevel", zoomLevel);
     searchParams.set("lat", lat);
-    searchParams.set("lon", lon);
+    searchParams.set("lng", lng);
     var newRelativePathQuery = window.location.pathname + '?' + searchParams.toString();
     history.pushState(null, '', newRelativePathQuery);
     });
