@@ -58,6 +58,12 @@ L.control.layers(basemaps, overlaymaps, {collapsed: false}).addTo(map);
 
 // Fit to overlay bounds (SW and NE points with (lat, lon))
 map.fitBounds([[6.287, 6.967], [6.315, 6.99]]);
+var searchParams = new URLSearchParams(window.location.search);
+
+if ("zoomLevel" in searchParams) {
+    zoomLevel = searchParams.get("searchParams")
+    map.zoom(zoomLevel);
+};
 
 var popup = L.popup();
 
