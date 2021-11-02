@@ -59,9 +59,13 @@ L.control.layers(basemaps, overlaymaps, {collapsed: false}).addTo(map);
 // Fit to overlay bounds (SW and NE points with (lat, lon))
 
 var searchParams = new URLSearchParams(window.location.search);
-if (searchParams.has("zoomLevel")) {
+if (searchParams.has("zoomLevel") && searchParams.has("x") && searchParams.has("y")) {
     zoomLevel = searchParams.get("zoomLevel")
-    console.log(zoomLevel) 
+    x = searchParams.get("x")
+    y = searchParams.get("y")
+    map.setView([x, y], zoomLevel);
+} else if (searchParams.has("zoomLevel")) {
+    zoomLevel = searchParams.get("zoomLevel")
     map.fitBounds([[6.287, 6.967], [6.315, 6.99]]);
     map.setZoom(zoomLevel);
 } else {
@@ -84,10 +88,13 @@ map.on('click', onMapClick);
 
 map.on('moveend', function(e) {
     var zoomLevel = map.getZoom();
+    var latlng = map.getCenter();
     var ll_title = document.getElementsByClassName('ctl src')[0];
     ll_title.innerHTML = "Zoom Level: " + zoomLevel.toString();
     var searchParams = new URLSearchParams(window.location.search);
     searchParams.set("zoomLevel", zoomLevel);
+    searchParams.set("x", latlng[1]);
+    searchParams.set("y", latlng[0]);
     var newRelativePathQuery = window.location.pathname + '?' + searchParams.toString();
     history.pushState(null, '', newRelativePathQuery);
     });
