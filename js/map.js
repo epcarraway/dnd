@@ -63,7 +63,7 @@ if (searchParams.has("zoomLevel")) {
     zoomLevel = searchParams.get("zoomLevel")
     console.log(zoomLevel) 
     map.fitBounds([[6.287, 6.967], [6.315, 6.99]]);
-    map.zoom(zoomLevel);
+    map.setZoom(zoomLevel);
 } else {
     map.fitBounds([[6.287, 6.967], [6.315, 6.99]]);
 };
