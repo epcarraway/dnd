@@ -59,7 +59,7 @@ L.control.layers(basemaps, overlaymaps, {collapsed: false}).addTo(map);
 // Fit to overlay bounds (SW and NE points with (lat, lon))
 
 var searchParams = new URLSearchParams(window.location.search);
-if (searchParams.has("zoomLevel") && searchParams.has("x") && searchParams.has("y")) {
+if (searchParams.has("zoomLevel") && searchParams.has("lat") && searchParams.has("lng")) {
     zoomLevel = searchParams.get("zoomLevel")
     lat = searchParams.get("lat")
     lng = searchParams.get("lng")
