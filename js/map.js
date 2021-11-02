@@ -88,8 +88,8 @@ map.on('click', onMapClick);
 
 map.on('moveend', function(e) {
     var zoomLevel = map.getZoom();
-    var lat = map.getCenter()["lat"];
-    var lng = map.getCenter()["lng"];
+    var lat = map.getCenter()["lat"].toPrecision(7);
+    var lng = map.getCenter()["lng"].toPrecision(7);
     var ll_title = document.getElementsByClassName('ctl src')[0];
     ll_title.innerHTML = "Zoom Level: " + zoomLevel.toString();
     var searchParams = new URLSearchParams(window.location.search);
