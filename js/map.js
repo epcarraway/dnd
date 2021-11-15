@@ -16,6 +16,8 @@ var lyr4 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd4/{z}/{x}/{y
     {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 9, maxNativeZoom: 14, maxZoom: 20, attribution: ""});
 var lyr5 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd5/{z}/{x}/{y}.png', 
     {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 9, maxNativeZoom: 14, maxZoom: 20, attribution: ""});
+var lyr6 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd6/{z}/{x}/{y}.png', 
+    {tms: true, opacity: 1, minZoom: 15, minNativeZoom: 15, maxNativeZoom: 18, maxZoom: 20, attribution: ""});
 
 // Map
 var map = L.map("mapid", {
@@ -33,14 +35,54 @@ var map = L.map("mapid", {
 });
 
 var layerGroup = L.layerGroup().addTo(map);
+var lyr7 = L.layerGroup();
 lyr.addTo(map);
 lyr3.addTo(map);
 lyr4.addTo(map);
 lyr5.addTo(map);
-var basemaps = {"World background": lyr2, "No background": white};
-var overlaymaps = {"Locations": layerGroup, "Waterdeep Map": lyr, "Icewind Dale Map": lyr3, "Neverwinter Map": lyr5, "Luskan Map": lyr4};
+lyr6.addTo(map);
+lyr7.addTo(map);
 
-// Note
+// Create grid layer of fixed size
+var tiles = new L.GridLayer({tileSize: 64, opacity:0.5, minZoom: 19, minNativeZoom: 20, maxNativeZoom: 20, maxZoom: 22});
+
+tiles.createTile = function(coords) {
+  var tile = L.DomUtil.create('canvas', 'leaflet-tile');
+  var ctx = tile.getContext('2d');
+  var size = this.getTileSize()
+  tile.width = size.x
+  tile.height = size.y
+  
+  // calculate projection coordinates of top left tile pixel
+  var nwPoint = coords.scaleBy(size)
+  
+  // calculate geographic coordinates of top left tile pixel
+  var nw = map.unproject(nwPoint, coords.z)
+  
+  ctx.strokeStyle = 'black';
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(size.x-1, 0);
+  ctx.lineTo(size.x-1, size.y-1);
+  ctx.lineTo(0, size.y-1);
+  ctx.closePath();
+  ctx.stroke();
+  return tile;
+};
+	
+tiles.addTo(map)
+
+var basemaps = {"World background": lyr2, "No background": white};
+var overlaymaps = {"Locations": layerGroup, 
+                   "Characters": lyr7, 
+                   "Waterdeep Map": lyr, 
+                   "Icewind Dale Map": lyr3, 
+                   "Ten Towns Map": lyr6, 
+                   "Neverwinter Map": lyr5, 
+                   "Luskan Map": lyr4, 
+                   "Grid": tiles};
+
+// Set bottom left text
 var src = 'Waterdeep';
 var title = L.control({position: 'bottomleft'});
 title.onAdd = function(map) {
@@ -56,8 +98,7 @@ title.addTo(map);
 // Add base layers
 L.control.layers(basemaps, overlaymaps, {collapsed: false}).addTo(map);
 
-// Fit to overlay bounds (SW and NE points with (lat, lon))
-
+// Set zoom levels and extent based on parameters
 var searchParams = new URLSearchParams(window.location.search);
 if (searchParams.has("zoomLevel") && searchParams.has("lat") && searchParams.has("lng")) {
     zoomLevel = searchParams.get("zoomLevel")
@@ -72,20 +113,67 @@ if (searchParams.has("zoomLevel") && searchParams.has("lat") && searchParams.has
     map.fitBounds([[6.287, 6.967], [6.315, 6.99]]);
 };
 
+// Add character icons from query parameters
+if (searchParams.has("chars")) {
+    var chars = searchParams.get("chars").split(';')
+    for (i = 0; i < chars.length; i++) {
+        var charname = chars[i].split(',')[0]
+        charlat = chars[i].split(',')[1]
+        charlng = chars[i].split(',')[2]
+        var charIcon = L.icon({
+            iconUrl: 'https://epcarraway.blob.core.windows.net/dnd/' + charname.toLocaleLowerCase() + '.png',
+            iconSize:     [64, 64], 
+            iconAnchor:   [32, 32], 
+            popupAnchor:  [0, -32] 
+        });
+        L.marker([charlng, charlat],{
+            icon: charIcon,
+            riseOnHover: true, 
+            color: 'red',
+            draggable:'true'
+        }).addTo(lyr7)
+            .bindPopup("<b>" + charname + "</b><br />Current location of " + charname)
+            .bindTooltip("<b>" + charname + "</b>")
+            .on("drag", function(e) {
+                var marker = e.target;
+                var charname = marker.getTooltip().getContent().replace('<b>', '').replace('</b>', '');
+                var position = marker.getLatLng();
+                charlat = position.lat.toPrecision(7).toString()
+                charlon = position.lng.toPrecision(7).toString()
+                var searchParams = new URLSearchParams(window.location.search);
+                var newchars2 = []
+                var chars2 = searchParams.get("chars").split(';')
+                for (i = 0; i < chars.length; i++) {
+                    if (chars2[i].split(',')[0] == charname) {
+                        var newchars2 = newchars2.concat([charname + ',' + charlon + ',' + charlat])
+                    } else {
+                        var newchars2 = newchars2.concat([chars2[i]])
+                    };
+                };
+                var newchars2 = newchars2.join(';')
+                searchParams.set("chars", newchars2);
+                var newRelativePathQuery = window.location.pathname + '?' + searchParams.toString();
+                history.pushState(null, '', newRelativePathQuery);
+        });
+    };
+};
+
+// Create double click popup
 var popup = L.popup();
 
 function onMapClick(e) {
     lng2 = e.latlng.lng.toPrecision(7).toString()
     lat2 = e.latlng.lat.toPrecision(7).toString()
-    content = "<table><tr><td>" + lng2 + "</td><td>" + lat2 + "</td></tr></table>"
+    content = "<table><tr><td>" + lng2 + "</td><td>" + lat2 + "</td></tr></table>";
     popup
         .setLatLng(e.latlng)
         .setContent(content)
         .openOn(map);
 }
 
-map.on('click', onMapClick);
+map.on('dblclick', onMapClick);
 
+// Update zoom/center parameters
 map.on('moveend', function(e) {
     var zoomLevel = map.getZoom();
     var lat = map.getCenter()["lat"].toPrecision(7);
