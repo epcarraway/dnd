@@ -10,7 +10,10 @@ def upload_folder_to_blob(folder_path, config):
     blob_service_client = BlobServiceClient.from_connection_string(
         config['AZURE_STORAGE_CONNECTION_STRING'])
     # Create the container
-    container_client = blob_service_client.create_container(config['AZURE_STORAGE_CONTAINER'])
+    try:
+        container_client = blob_service_client.create_container(config['AZURE_STORAGE_CONTAINER'])
+    except Exception:
+        container_client = blob_service_client.get_container_client(config['AZURE_STORAGE_CONTAINER'])
     for r,d,f in os.walk(folder_path):
         if f:
             for file in f:
