@@ -6,16 +6,16 @@
 var white = L.tileLayer("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEX///+nxBvIAAAAH0lEQVQYGe3BAQ0AAADCIPunfg43YAAAAAAAAAAA5wIhAAAB9aK9BAAAAABJRU5ErkJggg==");
 
 // Overlay layers (TMS)
-var lyr = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 8, maxNativeZoom: 18, maxZoom: 20, attribution: ""});
+var lyr = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd7/{z}/{x}/{y}.png', 
+    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 18, maxZoom: 20, attribution: ""});
 var lyr2 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd2/{z}/{x}/{y}.png', 
     {tms: true, opacity: 1, minZoom: 4, minNativeZoom: 6, maxNativeZoom: 12, maxZoom: 20, attribution: ""});
 var lyr3 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd3/{z}/{x}/{y}.png', 
     {tms: true, opacity: 1, minZoom: 10, minNativeZoom: 8, maxNativeZoom: 13, maxZoom: 20, attribution: ""});
 var lyr4 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd4/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 9, maxNativeZoom: 14, maxZoom: 20, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 15, maxZoom: 20, attribution: ""});
 var lyr5 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd5/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 9, maxNativeZoom: 14, maxZoom: 20, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 15, maxZoom: 20, attribution: ""});
 var lyr6 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd6/{z}/{x}/{y}.png', 
     {tms: true, opacity: 1, minZoom: 15, minNativeZoom: 15, maxNativeZoom: 18, maxZoom: 20, attribution: ""});
 
@@ -44,7 +44,7 @@ lyr6.addTo(map);
 lyr7.addTo(map);
 
 // Create grid layer of fixed size
-var tiles = new L.GridLayer({tileSize: 64, opacity:0.5, minZoom: 19, minNativeZoom: 20, maxNativeZoom: 20, maxZoom: 22});
+var tiles = new L.GridLayer({tileSize: 64, opacity:0.5, minZoom: 20, minNativeZoom: 20, maxNativeZoom: 20, maxZoom: 22});
 
 tiles.createTile = function(coords) {
   var tile = L.DomUtil.create('canvas', 'leaflet-tile');
@@ -197,6 +197,12 @@ function drawAllSheets() {
     // Create Google Sheets query
     var queryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=points&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, D');
     console.log(queryString);
+    var charIcon2 = L.icon({
+        iconUrl: 'https://epcarraway.blob.core.windows.net/dnd/marker.png',
+        iconSize:     [32, 64], 
+        iconAnchor:   [16, 60], 
+        popupAnchor:  [0, 16] 
+    });
     query1 = new google.visualization.Query(queryString);
     query1.send(chartfunction);
     function chartfunction (response) {
@@ -208,6 +214,7 @@ function drawAllSheets() {
             var lng1 = data.getValue(i, 2);
             var desc1 = data.getValue(i, 3);
             L.marker([lng1, lat1],{
+                icon: charIcon2,
                 riseOnHover: true
             }).addTo(layerGroup)
                 .bindPopup("<b>" + name1 + "</b><br />" + desc1)

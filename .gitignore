@@ -9,6 +9,7 @@ __pycache__/*
 *.jpg
 *.tif
 *.xcf
+temp *
 temp_*
 output_*
 config.json
