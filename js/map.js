@@ -49,15 +49,15 @@ var tiles = new L.GridLayer({tileSize: 64, opacity:0.5, minZoom: 20, minNativeZo
 tiles.createTile = function(coords) {
   var tile = L.DomUtil.create('canvas', 'leaflet-tile');
   var ctx = tile.getContext('2d');
-  var size = this.getTileSize()
-  tile.width = size.x
-  tile.height = size.y
+  var size = this.getTileSize();
+  tile.width = size.x;
+  tile.height = size.y;
   
   // calculate projection coordinates of top left tile pixel
-  var nwPoint = coords.scaleBy(size)
+  var nwPoint = coords.scaleBy(size);
   
   // calculate geographic coordinates of top left tile pixel
-  var nw = map.unproject(nwPoint, coords.z)
+  var nw = map.unproject(nwPoint, coords.z);
   
   ctx.strokeStyle = 'black';
   ctx.beginPath();
@@ -70,7 +70,7 @@ tiles.createTile = function(coords) {
   return tile;
 };
 	
-tiles.addTo(map)
+tiles.addTo(map);
 
 var basemaps = {"World background": lyr2, "No background": white};
 var overlaymaps = {"Locations": layerGroup, 
@@ -96,7 +96,7 @@ title.update = function(props) {
 title.addTo(map);
 
 // Add base layers
-L.control.layers(basemaps, overlaymaps, {collapsed: false}).addTo(map);
+var layerControl = L.control.layers(basemaps, overlaymaps, {collapsed: false}).addTo(map);
 
 // Set zoom levels and extent based on parameters
 var searchParams = new URLSearchParams(window.location.search);
@@ -123,7 +123,7 @@ if (searchParams.has("chars")) {
         var charIcon = L.icon({
             iconUrl: 'https://epcarraway.blob.core.windows.net/dnd/' + charname.toLocaleLowerCase() + '.png',
             iconSize:     [64, 64], 
-            iconAnchor:   [32, 32], 
+            iconAnchor:   [32, 64], 
             popupAnchor:  [0, -32] 
         });
         L.marker([charlng, charlat],{
@@ -158,8 +158,22 @@ if (searchParams.has("chars")) {
     };
 };
 
+
+// add an image to map
+if (searchParams.has("mapconfig")) {
+    var lyr8 = L.layerGroup();
+    lyr8.addTo(map);
+    layerControl.addOverlay(lyr8, 'Custom');
+    $.getJSON("https://epcarraway.blob.core.windows.net/dnd/mapconfig.json", function(e) {
+        for (i = 0; i < e.length; i++) {
+            L.imageOverlay(e[i].imageUrl, e[i].imageBounds).addTo(lyr8);
+            L.imageOverlay(e[i].imageUrl, e[i].imageBounds).bringToFront();
+        };
+    });
+};
+
 // Create double click popup
-var popup = L.popup();
+var popup = L.popup();  
 
 function onMapClick(e) {
     lng2 = e.latlng.lng.toPrecision(7).toString()
@@ -169,9 +183,42 @@ function onMapClick(e) {
         .setLatLng(e.latlng)
         .setContent(content)
         .openOn(map);
-}
+};
+
+function addPoint(lng2, lat2) {
+    customName = 'humanoid'
+    var customIcon = L.icon({
+        iconUrl: 'https://epcarraway.blob.core.windows.net/dnd/' + customName + '.png',
+        iconSize:     [64, 64], 
+        iconAnchor:   [32, 64], 
+        popupAnchor:  [0, -32] 
+    });
+    L.marker([lat2, lng2],{
+        icon: customIcon,
+        riseOnHover: true, 
+        color: 'black',
+        draggable:'true'
+    }).addTo(layerGroup)
+        .bindPopup("<b>" + customName + "</b><br />" + lng2 + ", " + lat2)
+        .bindTooltip("<b>" + customName + "</b>")
+};
+
+// Create double click popup
+var rightpopup = L.popup();  
+
+function onMapRightClick(e) {
+    lng2 = e.latlng.lng.toPrecision(7).toString()
+    lat2 = e.latlng.lat.toPrecision(7).toString()
+    content = '<b>Option Menu</b><br><br><div><button onclick="addPoint(' + lng2 + ',' + lat2 + ')" type="buttons" class="btn btn-danger" id="addPointId">Add Point</button></div><br><div>';
+    rightpopup
+        .setLatLng(e.latlng)
+        .setContent(content)
+        .openOn(map);
+};
 
 map.on('dblclick', onMapClick);
+
+map.on('contextmenu', onMapRightClick);
 
 // Update zoom/center parameters
 map.on('moveend', function(e) {
@@ -201,7 +248,7 @@ function drawAllSheets() {
         iconUrl: 'https://epcarraway.blob.core.windows.net/dnd/marker.png',
         iconSize:     [32, 64], 
         iconAnchor:   [16, 60], 
-        popupAnchor:  [0, 16] 
+        popupAnchor:  [0, -64] 
     });
     query1 = new google.visualization.Query(queryString);
     query1.send(chartfunction);
@@ -219,7 +266,6 @@ function drawAllSheets() {
             }).addTo(layerGroup)
                 .bindPopup("<b>" + name1 + "</b><br />" + desc1)
                 .bindTooltip("<b>" + name1 + "</b>");
-        }
-
-    }
-}
+        };
+    };
+};
