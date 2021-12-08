@@ -12,6 +12,6 @@ __pycache__/*
 temp *
 temp_*
 output_*
-config.json
+*config.json
 *settings*
 test*

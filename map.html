@@ -41,24 +41,26 @@
       }
       :root {
         cursor: none;
-        --cursorX: 50vw;
-        --cursorY: 50vh;
+        --cursorX: 5vw;
+        --cursorY: 5vh;
       }
       :root:before {
         content: '';
         display: block;
         width: 100%;
-        height: 100%;
+        height: 91%;
         position: fixed;
         pointer-events: none;
-        background: radial-gradient(
-          circle var(--radiusVMAX) at var(--cursorX) var(--cursorY),
-          rgba(0,0,0,0) 0%,
-          rgba(194, 136, 29, 0.2) 20%,
-          rgba(0,0,0,.50) 60%,
-          rgba(0,0,0,.95) 100%
-        );
-        z-index: 999;
+        background-color: var(--overlaycolor);
+        -webkit-mask: radial-gradient(
+          circle at var(--cursorX) var(--cursorY),
+          transparent var(--cursorZ0), black var(--cursorZ)
+        )
+        var(--vispoints)
+        ;
+        -webkit-mask-composite: destination-in;
+        mask-composite: exclude;
+        z-index: 401;
       }
     </style>
   </head>
@@ -67,7 +69,7 @@
     <!-- Header template -->
     <div id="header"></div>
     <div class="container-fluid" id="mapid">
-      <div class="btn-group" style="z-index: 1001"> <!-- Use 401 to be between map and controls -->
+      <div class="btn-group" style="z-index: 501"> <!-- Use 401 to be between map and controls -->
         <button type="buttons" id="darkmode" class="btn btn-danger">darkmode</button>
       </div>
     </div>
@@ -83,32 +85,134 @@
     <script src="js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <script src="js/jquery-3.6.0.js"></script> 
     <script>
-      $(function(){
-        $("#header").load("header.html", function(){
+      $(function() {
+        $("#header").load("header.html", function() {
           document.getElementById("map").classList.add('active');
         });
       });
     </script>
     <script type="text/javascript" src="js/map.js"></script>
     <script>
+      let vispointsxy = [];
+      let vispointsll = [];
+      let vispoints = ' ';
+      let x = 0;
+      let y = 0;
+      let x1 = 0;
+      let y1 = 0;
       function update(e){
-        var x = e.clientX || e.touches[0].clientX
-        var y = e.clientY || e.touches[0].clientY
-      
-        document.documentElement.style.setProperty('--cursorX', x + 'px')
-        document.documentElement.style.setProperty('--cursorY', y + 'px')
-      }
-      function darkon(e) {
-        if (document.documentElement.style.getPropertyValue('--radiusVMAX') == '15vmax') {
-          document.documentElement.style.setProperty('--radiusVMAX', '');
-        } else {
-        document.documentElement.style.setProperty('--radiusVMAX', '15vmax');
+        drag = true
+        if (document.documentElement.style.getPropertyValue('--overlaycolor') == 'black') {
+          x = e.clientX || e.touches[0].clientX;
+          y = e.clientY || e.touches[0].clientY;
+          var z = Math.ceil(Math.pow(2, map.getZoom()) / 5000);
+          var z0 = Math.ceil(Math.pow(2, map.getZoom()) / 10000);
+          if (Math.abs(x - x1) > 50 || Math.abs(y - y1) > 50) {
+            x1 = e.clientX || e.touches[0].clientX;
+            y1 = e.clientY || e.touches[0].clientY;
+            document.documentElement.style.setProperty('--cursorX', x + 'px');
+            document.documentElement.style.setProperty('--cursorY', (y - 28) + 'px');
+            document.documentElement.style.setProperty('--cursorZ', z + 'px');
+            document.documentElement.style.setProperty('--cursorZ0', z0 + 'px');
+          };
         };
-      }
-      
-      document.addEventListener('mousemove',update)
-      document.addEventListener('touchmove',update)
-      document.getElementById("darkmode").addEventListener('click',darkon)
-    </script>
+      };
+      function darkon(e) {
+        if (document.documentElement.style.getPropertyValue('--overlaycolor') == 'black') {
+          document.documentElement.style.setProperty('--overlaycolor', 'transparent');
+        } else {
+          document.documentElement.style.setProperty('--overlaycolor', 'black');
+          document.documentElement.style.setProperty('--vispoints', ' ');
+          vispointsxy = [];
+          addcharlight();
+        };
+      };
+      function darkmove(e) {
+        if (document.documentElement.style.getPropertyValue('--overlaycolor') == 'black') {
+          vispointsxy = [];
+          document.documentElement.style.setProperty('--vispoints', ' ');
+          lltovispoints();
+          addcharlight();
+        };
+      };
+      function addpoint(e) {
+        if (document.documentElement.style.getPropertyValue('--overlaycolor') == 'black') {
+          if (!drag) {
+            x = e.clientX || e.touches[0].clientX;
+            y = e.clientY || e.touches[0].clientY;
+            var z = Math.ceil(Math.pow(2, map.getZoom()) / 5000);
+            var z0 = Math.ceil(Math.pow(2, map.getZoom()) / 10000);
+            if ((x > 150) || (y > 150)) { 
+              if (JSON.stringify(vispointsxy).indexOf(JSON.stringify([x, y])) == -1) {
+                vispointsxy = vispointsxy.concat([[x, y]]);
+              };
+              xystolatlngs();
+              vispoints = document.documentElement.style.getPropertyValue('--vispoints') + 
+            ', radial-gradient(circle at ' + x + 'px ' + (y - 28) + 'px, transparent ' + z0 + 'px, black ' + z + 'px)';
+              document.documentElement.style.setProperty('--vispoints', vispoints);
+            };
+          } else {addcharlight()};
+        };
+      };
+      function xystolatlngs() {
+        if (document.documentElement.style.getPropertyValue('--overlaycolor') == 'black') {
+          vispointsll = [];
+          for (i = 0; i < vispointsxy.length; i++) { 
+            lat = map.containerPointToLatLng(vispointsxy[i]).lat;
+            lng = map.containerPointToLatLng(vispointsxy[i]).lng;
+            if (JSON.stringify(vispointsll).indexOf(JSON.stringify([lat, lng])) == -1) {
+              vispointsll = vispointsll.concat([[lat, lng]]);
+            };
+          };
+        };
+      };
+      function lltovispoints() {
+        if (document.documentElement.style.getPropertyValue('--overlaycolor') == 'black') {
+          vispointsxy = [];
+          for (i = 0; i < vispointsll.length; i++) { 
+            x = map.latLngToContainerPoint(vispointsll[i]).x;
+            y = map.latLngToContainerPoint(vispointsll[i]).y;
+            z = Math.ceil(Math.pow(2, map.getZoom()) / 5000);
+            z0 = Math.ceil(Math.pow(2, map.getZoom()) / 10000);
+            if (JSON.stringify(vispointsxy).indexOf(JSON.stringify([x, y])) == -1) {
+              vispointsxy = vispointsxy.concat([[x, y]]);
+            };
+              vispoints = document.documentElement.style.getPropertyValue('--vispoints') + 
+              ', radial-gradient(circle at ' + x + 'px ' + y + 'px, transparent ' + z0 + 'px, black ' + z + 'px)';
+              document.documentElement.style.setProperty('--vispoints', vispoints);
+          };
+        };
+      };
+      function addcharlight() {
+        if (document.documentElement.style.getPropertyValue('--overlaycolor') == 'black') {
+          searchParams2 = new URLSearchParams(window.location.search);
+          if (searchParams2.has("chars")) {
+            chars = searchParams2.get("chars").split(';')
+            for (i = 0; i < chars.length; i++) {
+              charlat = chars[i].split(',')[1]
+              charlng = chars[i].split(',')[2]
+              x = map.latLngToContainerPoint([charlng, charlat]).x;
+              y = map.latLngToContainerPoint([charlng, charlat]).y;
+              z = Math.ceil(Math.pow(2, map.getZoom()) / 5000);
+              z0 = Math.ceil(Math.pow(2, map.getZoom()) / 10000);
+              if (JSON.stringify(vispointsxy).indexOf(JSON.stringify([x, y])) == -1) {
+                vispointsxy = vispointsxy.concat([[x, y]]);
+                vispoints = document.documentElement.style.getPropertyValue('--vispoints') + 
+                ', radial-gradient(circle at ' + x + 'px ' + y + 'px, transparent ' + z0 + 'px, black ' + z + 'px)';
+              };
+              document.documentElement.style.setProperty('--vispoints', vispoints);
+            };
+            xystolatlngs();
+          };
+        };
+      };
+      let drag = false;
+      document.addEventListener('mousemove', update);
+      document.addEventListener('touchmove', update);
+      document.addEventListener('mouseup', addpoint);
+      document.addEventListener('mousedown', () => drag = false);
+      document.getElementById("darkmode").addEventListener('click', darkon);
+      map.addEventListener('move', darkmove);
+    </script> 
   </body>
 </html>
