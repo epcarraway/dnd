@@ -185,8 +185,7 @@ function onMapClick(e) {
         .openOn(map);
 };
 
-function addPoint(lng2, lat2) {
-    customName = 'humanoid'
+function addPoint(lng2, lat2, customName = 'humanoid') {
     var customIcon = L.icon({
         iconUrl: 'https://epcarraway.blob.core.windows.net/dnd/' + customName + '.png',
         iconSize:     [64, 64], 
@@ -200,7 +199,8 @@ function addPoint(lng2, lat2) {
         draggable:'true'
     }).addTo(layerGroup)
         .bindPopup("<b>" + customName + "</b><br />" + lng2 + ", " + lat2)
-        .bindTooltip("<b>" + customName + "</b>")
+        .bindTooltip("<b>" + customName + "</b>");
+    map.closePopup();
 };
 
 // Create double click popup
@@ -209,11 +209,23 @@ var rightpopup = L.popup();
 function onMapRightClick(e) {
     lng2 = e.latlng.lng.toPrecision(7).toString()
     lat2 = e.latlng.lat.toPrecision(7).toString()
-    content = '<b>Option Menu</b><br><br><div><button onclick="addPoint(' + lng2 + ',' + lat2 + ')" type="buttons" class="btn btn-danger" id="addPointId">Add Point</button></div><br><div>';
-    rightpopup
-        .setLatLng(e.latlng)
-        .setContent(content)
-        .openOn(map);
+    content = '<b>Option Menu</b><br><div>'
+    icons = ['humanoid', 'fiend', 'beast', 'greenmarker', 'bluemarker', 'redmarker']
+    chars = searchParams.get("chars").split(';')
+    for (i = 0; i < chars.length; i++) {
+        icons.push(chars[i].split(',')[0]);
+    };
+    for (i = 0; i < icons.length; i++) {
+        content = content + '<button onclick="addPoint(' + 
+        lng2 + ',' + lat2 + ",'" + icons[i] + "'" + 
+        ')" type="buttons" class="btn btn-danger" id="addPointId" style="margin: 2px;">Add ' + 
+        icons[i] + '</button>';
+        rightpopup
+            .setLatLng(e.latlng)
+            .setContent(content)
+            .openOn(map);
+    };
+    content = content + '</div>'
 };
 
 map.on('dblclick', onMapClick);
