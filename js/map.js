@@ -7,24 +7,24 @@ var white = L.tileLayer("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAA
 
 // Overlay layers (TMS)
 var lyr = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd7/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 18, maxZoom: 20, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 18, maxZoom: 23, attribution: ""});
 var lyr2 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd2/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 4, minNativeZoom: 6, maxNativeZoom: 12, maxZoom: 20, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 4, minNativeZoom: 6, maxNativeZoom: 12, maxZoom: 23, attribution: ""});
 var lyr3 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd3/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 10, minNativeZoom: 8, maxNativeZoom: 13, maxZoom: 20, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 10, minNativeZoom: 8, maxNativeZoom: 13, maxZoom: 23, attribution: ""});
 var lyr4 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd4/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 15, maxZoom: 20, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 15, maxZoom: 23, attribution: ""});
 var lyr5 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd5/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 15, maxZoom: 20, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 15, maxZoom: 23, attribution: ""});
 var lyr6 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd6/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 15, minNativeZoom: 15, maxNativeZoom: 18, maxZoom: 20, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 15, minNativeZoom: 15, maxNativeZoom: 18, maxZoom: 23, attribution: ""});
 
 // Map
 var map = L.map("mapid", {
     center: [6.3, 7.0],
     zoom: 14,
     minZoom: 6,
-    maxZoom: 20,
+    maxZoom: 23,
     maxBounds: [
         //south west
         [0, 0],
@@ -44,7 +44,7 @@ lyr6.addTo(map);
 lyr7.addTo(map);
 
 // Create grid layer of fixed size
-var tiles = new L.GridLayer({tileSize: 64, opacity:0.5, minZoom: 20, minNativeZoom: 20, maxNativeZoom: 20, maxZoom: 22});
+var tiles = new L.GridLayer({tileSize: 64, opacity:0.5, minZoom: 20, minNativeZoom: 20, maxNativeZoom: 23, maxZoom: 23});
 
 tiles.createTile = function(coords) {
   var tile = L.DomUtil.create('canvas', 'leaflet-tile');
@@ -68,9 +68,7 @@ tiles.createTile = function(coords) {
   ctx.closePath();
   ctx.stroke();
   return tile;
-};
-	
-tiles.addTo(map);
+};	
 
 var basemaps = {"World background": lyr2, "No background": white};
 var overlaymaps = {"Locations": layerGroup, 
@@ -79,8 +77,7 @@ var overlaymaps = {"Locations": layerGroup,
                    "Icewind Dale Map": lyr3, 
                    "Ten Towns Map": lyr6, 
                    "Neverwinter Map": lyr5, 
-                   "Luskan Map": lyr4, 
-                   "Grid": tiles};
+                   "Luskan Map": lyr4};
 
 // Set bottom left text
 var src = 'Waterdeep';
@@ -172,6 +169,10 @@ if (searchParams.has("mapconfig")) {
     });
 };
 
+
+tiles.addTo(map);
+layerControl.addOverlay(tiles, 'Grid');
+
 // Create double click popup
 var popup = L.popup();  
 
@@ -185,22 +186,45 @@ function onMapClick(e) {
         .openOn(map);
 };
 
+var markerCount = 0;
+// Add custom points
 function addPoint(lng2, lat2, customName = 'humanoid') {
     var customIcon = L.icon({
         iconUrl: 'https://epcarraway.blob.core.windows.net/dnd/' + customName + '.png',
         iconSize:     [64, 64], 
         iconAnchor:   [32, 64], 
-        popupAnchor:  [0, -32] 
+        popupAnchor:  [0, -32]
     });
+    markerCount += 1;
+    newMarkerId = 'marker_' + markerCount.toString();
+    newContent = '<br /><button onclick="onMarkerButtonClick(' + "'" + newMarkerId + "'" + 
+        ')" type="buttons" class="btn btn-danger" id="removePointId" style="margin: 2px;">Remove</button>';
+    console.log(newMarkerId);
     L.marker([lat2, lng2],{
         icon: customIcon,
         riseOnHover: true, 
         color: 'black',
-        draggable:'true'
+        draggable:'true',
+        layerId: newMarkerId
     }).addTo(layerGroup)
-        .bindPopup("<b>" + customName + "</b><br />" + lng2 + ", " + lat2)
+        .bindPopup("<b>" + customName + "</b><br /><br />" + lng2.toString() + ", " + lat2.toString() + newContent)
         .bindTooltip("<b>" + customName + "</b>");
     map.closePopup();
+};
+
+// Remove custom marker
+function onMarkerButtonClick(newMarkerId) {
+    for (i = 0; i < Object.entries(layerGroup._layers).length; i++) {
+        markerId = '';
+        try {
+            markerId = Object.entries(layerGroup._layers)[i][1]['options']['layerId'];
+        } catch(e) {
+        };
+        if (markerId == newMarkerId) {
+            console.log(newMarkerId);
+            Object.entries(layerGroup._layers)[i][1].remove();
+        };
+    };
 };
 
 // Create double click popup
