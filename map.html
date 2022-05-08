@@ -105,8 +105,8 @@
         if (document.documentElement.style.getPropertyValue('--overlaycolor') == 'black') {
           x = e.clientX || e.touches[0].clientX;
           y = e.clientY || e.touches[0].clientY;
-          var z = Math.ceil(Math.pow(2, map.getZoom()) / 5000);
-          var z0 = Math.ceil(Math.pow(2, map.getZoom()) / 10000);
+          var z = Math.ceil(Math.pow(2, map.getZoom()) / 6000);
+          var z0 = Math.ceil(Math.pow(2, map.getZoom()) / 24000);
           if (Math.abs(x - x1) > 50 || Math.abs(y - y1) > 50) {
             x1 = e.clientX || e.touches[0].clientX;
             y1 = e.clientY || e.touches[0].clientY;
@@ -140,8 +140,8 @@
           if (!drag) {
             x = e.clientX || e.touches[0].clientX;
             y = e.clientY || e.touches[0].clientY;
-            var z = Math.ceil(Math.pow(2, map.getZoom()) / 5000);
-            var z0 = Math.ceil(Math.pow(2, map.getZoom()) / 10000);
+            var z = Math.ceil(Math.pow(2, map.getZoom()) / 6000);
+            var z0 = Math.ceil(Math.pow(2, map.getZoom()) / 24000);
             if ((x > 150) || (y > 150)) { 
               if (JSON.stringify(vispointsxy).indexOf(JSON.stringify([x, y])) == -1) {
                 vispointsxy = vispointsxy.concat([[x, y]]);
@@ -172,8 +172,8 @@
           for (i = 0; i < vispointsll.length; i++) { 
             x = map.latLngToContainerPoint(vispointsll[i]).x;
             y = map.latLngToContainerPoint(vispointsll[i]).y;
-            z = Math.ceil(Math.pow(2, map.getZoom()) / 5000);
-            z0 = Math.ceil(Math.pow(2, map.getZoom()) / 10000);
+            z = Math.ceil(Math.pow(2, map.getZoom()) / 6000);
+            z0 = Math.ceil(Math.pow(2, map.getZoom()) / 24000);
             if (JSON.stringify(vispointsxy).indexOf(JSON.stringify([x, y])) == -1) {
               vispointsxy = vispointsxy.concat([[x, y]]);
             };
@@ -193,8 +193,8 @@
               charlng = chars[i].split(',')[2]
               x = map.latLngToContainerPoint([charlng, charlat]).x;
               y = map.latLngToContainerPoint([charlng, charlat]).y;
-              z = Math.ceil(Math.pow(2, map.getZoom()) / 5000);
-              z0 = Math.ceil(Math.pow(2, map.getZoom()) / 10000);
+              z = Math.ceil(Math.pow(2, map.getZoom()) / 6000);
+              z0 = Math.ceil(Math.pow(2, map.getZoom()) / 24000);
               if (JSON.stringify(vispointsxy).indexOf(JSON.stringify([x, y])) == -1) {
                 vispointsxy = vispointsxy.concat([[x, y]]);
                 vispoints = document.documentElement.style.getPropertyValue('--vispoints') + 
