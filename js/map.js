@@ -227,6 +227,16 @@ function onMarkerButtonClick(newMarkerId) {
     };
 };
 
+// Add custom box layer
+function addBoxLayer(lng1, lat1, lng2, lat2, inputUrl) {
+    console.log(lng1, lat1, lng2, lat2, inputUrl);
+    var lyr9 = L.layerGroup();
+    lyr9.addTo(map);
+    layerControl.addOverlay(lyr9, 'Custom 2');
+    L.imageOverlay(inputUrl, [[lat1, lng1, ], [lat2, lng2]]).addTo(lyr9);
+    L.imageOverlay(inputUrl, [[lat1, lng1, ], [lat2, lng2]]).bringToFront();
+};
+
 // Create double click popup
 var rightpopup = L.popup();  
 
@@ -244,12 +254,12 @@ function onMapRightClick(e) {
         lng2 + ',' + lat2 + ",'" + icons[i] + "'" + 
         ')" type="buttons" class="btn btn-danger" id="addPointId" style="margin: 2px;">Add ' + 
         icons[i] + '</button>';
-        rightpopup
-            .setLatLng(e.latlng)
-            .setContent(content)
-            .openOn(map);
+        content = content + '</div>'
     };
-    content = content + '</div>'
+    rightpopup
+        .setLatLng(e.latlng)
+        .setContent(content)
+        .openOn(map);
 };
 
 map.on('dblclick', onMapClick);
@@ -270,6 +280,26 @@ map.on('moveend', function(e) {
     var newRelativePathQuery = window.location.pathname + '?' + searchParams.toString();
     history.pushState(null, '', newRelativePathQuery);
     });
+
+// Create box popup
+map.on('boxzoomend', function(e) {
+    console.log('end');
+    var lat1 = e.boxZoomBounds._southWest.lat.toPrecision(7);
+    var lng1 = e.boxZoomBounds._southWest.lng.toPrecision(7);
+    var lat2 = e.boxZoomBounds._northEast.lat.toPrecision(7);
+    var lng2 = e.boxZoomBounds._northEast.lng.toPrecision(7);
+    console.log(e.boxZoomBounds)
+    content = '<b>Option Menu</b><br><div>';
+    content = content + '<input type="text" id="inputLayerUrl" class="form-control" placeholder="enter layer image url">';
+    content = content + '<button onclick="addBoxLayer(' + 
+        lng1 + ',' + lat1 + ',' + lng2 + ',' + lat2 + ',document.getElementById(\'inputLayerUrl\').value' + 
+        ')" type="buttons" class="btn btn-danger" id="addPointId" style="margin: 2px;">Add custom overlay</button>';
+    content = content + '</div>';
+    rightpopup
+        .setLatLng(e.boxZoomBounds.getCenter())
+        .setContent(content)
+        .openOn(map);
+});
     
 // Load the visualization API and the corechart packages
 google.charts.load('current',{'packages':['corechart','table']});
