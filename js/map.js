@@ -21,8 +21,8 @@ var lyr6 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd6/{z}/{x}/{y
 
 // Map
 var map = L.map("mapid", {
-    center: [6.3, 7.0],
-    zoom: 14,
+    center: [5.7, 9.6],
+    zoom: 11,
     minZoom: 6,
     maxZoom: 23,
     maxBounds: [
