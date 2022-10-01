@@ -104,7 +104,7 @@ if (searchParams.has("zoomLevel") && searchParams.has("lat") && searchParams.has
     map.setView([lat, lng], zoomLevel);
 } else if (searchParams.has("zoomLevel")) {
     zoomLevel = searchParams.get("zoomLevel")
-    map.fitBounds([[6.287, 6.967], [6.315, 6.99]]);
+    map.fitBounds([[5.6, 9.5], [5.8, 9.7]]);
     map.setZoom(zoomLevel);
 } else {
     map.fitBounds([[6.287, 6.967], [6.315, 6.99]]);
