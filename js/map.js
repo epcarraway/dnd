@@ -1,6 +1,8 @@
 /* **** Leaflet **** */
 
 // Base layers
+var default_bounds = [[9.345, 5.660], [9.541, 5.920]]
+var default_center = [(default_bounds[0][0] + default_bounds[1][0])/2, (default_bounds[0][1] + default_bounds[1][1])/2]
 
 //  .. White background
 var white = L.tileLayer("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEX///+nxBvIAAAAH0lEQVQYGe3BAQ0AAADCIPunfg43YAAAAAAAAAAA5wIhAAAB9aK9BAAAAABJRU5ErkJggg==");
@@ -21,7 +23,7 @@ var lyr6 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd6/{z}/{x}/{y
 
 // Map
 var map = L.map("mapid", {
-    center: [6.3, 7.0],
+    // center: default_center,
     zoom: 14,
     minZoom: 6,
     maxZoom: 23,
@@ -97,17 +99,19 @@ var layerControl = L.control.layers(basemaps, overlaymaps, {collapsed: false}).a
 
 // Set zoom levels and extent based on parameters
 var searchParams = new URLSearchParams(window.location.search);
-if (searchParams.has("zoomLevel") && searchParams.has("lat") && searchParams.has("lng")) {
-    zoomLevel = searchParams.get("zoomLevel")
-    lat = searchParams.get("lat")
-    lng = searchParams.get("lng")
-    map.setView([lat, lng], zoomLevel);
-} else if (searchParams.has("zoomLevel")) {
-    zoomLevel = searchParams.get("zoomLevel")
-    map.fitBounds([[6.287, 6.967], [6.315, 6.99]]);
-    map.setZoom(zoomLevel);
-} else {
-    map.fitBounds([[6.287, 6.967], [6.315, 6.99]]);
+if (searchParams.has("chars")) {
+    if (searchParams.has("zoomLevel") && searchParams.has("lat") && searchParams.has("lng")) {
+        zoomLevel = searchParams.get("zoomLevel")
+        lat = searchParams.get("lat")
+        lng = searchParams.get("lng")
+        map.setView([lat, lng], zoomLevel);
+    } else if (searchParams.has("zoomLevel")) {
+        zoomLevel = searchParams.get("zoomLevel")
+        map.fitBounds(default_bounds);
+        map.setZoom(zoomLevel);
+    } else {
+        map.fitBounds(default_bounds);
+    };
 };
 
 // Add character icons from query parameters
@@ -307,6 +311,52 @@ google.charts.load('current',{'packages':['corechart','table']});
 // Set callback when the google visualization API is loaded
 google.charts.setOnLoadCallback(drawAllSheets);
 function drawAllSheets() {
+    var searchParams = new URLSearchParams(window.location.search);
+    if (!searchParams.has("chars")) {
+        var charQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=characters&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, D');
+        console.log(charQueryString);
+        charQuery = new google.visualization.Query(charQueryString);
+        charQuery.send(charChartFunction);
+        function charChartFunction (charResponse) {
+            // Get stored character data
+            var newchars2 = []
+            lats = []
+            lons = []
+            history.pushState(null, '', newRelativePathQuery);
+            var chardata = charResponse.getDataTable();
+            if (chardata.getNumberOfRows() > 2) {
+                for (i=0; i<chardata.getNumberOfRows(); i++) {
+                    var charname = chardata.getValue(i, 0);
+                    var charlon = chardata.getValue(i, 1);
+                    var charlat = chardata.getValue(i, 2);
+                    var lats = lats.concat([Number(charlat)])
+                    var lons = lons.concat([Number(charlon)])
+                    var newchars2 = newchars2.concat([charname + ',' + charlon + ',' + charlat])
+                };
+                if (!searchParams.has("lat") && !searchParams.has("lng")) {
+                    var sum = 0;
+                    for( var i = 0; i < lats.length; i++ ){
+                        sum += lats[i];
+                    }
+                    var avglat = sum/lats.length; 
+                    var sum = 0;
+                    for( var i = 0; i < lons.length; i++ ){
+                        sum += lons[i];
+                    }
+                    var avglon = sum/lons.length;
+                    var zoomLevel = 12
+                    searchParams.set("zoomLevel", zoomLevel);
+                    searchParams.set("lat", avglat);
+                    searchParams.set("lng", avglon);
+                };
+                var newchars2 = newchars2.join(';')
+                searchParams.set("chars", newchars2);
+                var newRelativePathQuery = window.location.pathname + '?' + searchParams.toString();
+                console.log(newRelativePathQuery)
+                window.location.replace(newRelativePathQuery)
+            };
+        };
+    };
     // Create Google Sheets query
     var queryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=points&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, D');
     console.log(queryString);

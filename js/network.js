@@ -72,8 +72,29 @@ function drawAllSheets() {
                 nodes: nodes,
                 edges: edges,
             };
-            var options = {};
+            var options = {}
             var network = new vis.Network(container, data2, options);
+            var searchParams = new URLSearchParams(window.location.search);
+            if (searchParams.has("charLabel")) {
+                var charLabel = searchParams.get("charLabel");
+                console.log(charLabel);
+                var charId = nodelist.indexOf(charLabel);
+                console.log(charId);
+                network.once("afterDrawing", function() {
+                    var options = { 
+                        nodes:[charId],
+                        minZoomLevel: 1.5,
+                        maxZoomLevel: 1.5,
+                        animation: {      
+                          duration: 500,
+                          easingFunction: "easeInOutQuad"
+                        }
+                      };
+                    network.fit(options=options)
+                })
+            };
+            
+            
         };
     };
 };

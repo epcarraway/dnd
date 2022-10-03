@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="favicon.ico">
+    <meta name="description" content="Waterdeep Project">
+    <meta name="author" content="Evan Carraway">
+    <title>Waterdeep</title>
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="css/sticky-footer-navbar.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>  
+     <!-- Load the AJAX API aka Google API  -->
+     <script src="https://www.gstatic.com/charts/loader.js"></script>
+  </head>
+
+  <body class="d-flex flex-column h-100">
+    <!-- Header template -->
+    <div id="header"></div>
+
+    <!-- Begin page content -->
+    <main class="flex-shrink-0">
+      <div class="container">
+        <!-- DataTable Area -->
+        <div class="container">  
+          <table id="data-table" class="display" style="width:100%">
+            <thead>
+              <tr>
+                <th>name</th>
+                <th>description</th>
+                <th>type</th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr>
+                <th>name</th>
+                <th>description</th>
+                <th>type</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>  
+      </div>
+    </main>
+
+    <!-- Footer Area -->
+    <footer class="footer mt-auto py-3 bg-white">
+      <div class="container-fluid">
+        <span class="text-muted">© Carraway 2021</span>
+      </div>
+    </footer>
+    
+    <!-- Bootstrap core JavaScript-->
+    <script src="js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="js/jquery-3.6.0.js"></script> 
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	  <script>
+      $(function(){
+        $("#header").load("header.html",  function(){
+          document.getElementById("glossary").classList.add('active');
+        });
+      });
+    </script>
+    <script>
+      // Creates a DataTable from source JSON
+       $(document).ready(function() {
+        // Load the visualization API and the corechart packages
+        google.charts.load('current',{'packages':['corechart','table']});
+        // Set callback when the google visualization API is loaded
+        google.charts.setOnLoadCallback(drawAllSheets);
+        function drawAllSheets() {
+          var tableRows = Array();
+          var pointQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=points&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, D');
+          console.log(pointQueryString);
+          pointQuery = new google.visualization.Query(pointQueryString);
+          pointQuery.send(pointChartFunction);
+          function pointChartFunction (pointResponse) {
+              var placeNames = []
+              // Get and map data
+              var pointData = pointResponse.getDataTable();
+              // console.log(tableRows.length);
+              for (i=0; i<pointData.getNumberOfRows(); i++) {
+                  var pointName = pointData.getValue(i, 0);
+                  placeNames.push(pointName);
+                  var pointLongitude = pointData.getValue(i, 1);
+                  var pointLatitude = pointData.getValue(i, 2);
+                  var pointDescription = pointData.getValue(i, 3);
+                  var pointUrl = '<a href="map.html?zoomLevel=16&lat=' + pointLatitude + ' &lng=' + pointLongitude + '">' + pointName + '</a>'
+                  console.log(pointName, pointDescription);
+                  tableRows = tableRows.concat([[pointUrl, pointDescription, "Place"]]);
+              };
+              var characterQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=people&headers=1&tq=' + encodeURIComponent('SELECT A, B');
+              console.log(characterQueryString);
+              characterQuery = new google.visualization.Query(characterQueryString);
+              characterQuery.send(characterChartFunction);
+              function characterChartFunction (characterResponse) {
+                  // Get and map data
+                  var characterData = characterResponse.getDataTable();
+                  // console.log(tableRows.length);
+                  for (i=0; i<characterData.getNumberOfRows(); i++) {
+                      var characterName = characterData.getValue(i, 0);
+                      if (!(placeNames.includes(characterName))) {
+                        var characterDescription = characterData.getValue(i, 1);
+                        var characterUrl = '<a href="network.html?charLabel=' + encodeURIComponent(characterName) + '">' + characterName + '</a>'
+                        console.log(characterName, characterDescription);
+                        tableRows = tableRows.concat([[characterUrl, characterDescription, "Character"]]);
+                      };
+                  };
+                  $('#data-table').DataTable( {
+                    paging: false,
+                    data: tableRows,
+                    "columns": [
+                        { 
+                          "title": "name",
+                          "render": function(title, type, row, meta){
+                            if(type === 'display'){
+                                title = title;
+                            }
+                            
+                            return title;
+                          }
+                      },
+                      { "title": "description" },
+                      { "title": "type" }
+                    ]
+                  } );
+              };
+          };
+          
+        };
+      } );
+     </script> 
+  </body>
+</html>
