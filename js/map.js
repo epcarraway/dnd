@@ -248,7 +248,11 @@ function onMapRightClick(e) {
     lng2 = e.latlng.lng.toPrecision(7).toString()
     lat2 = e.latlng.lat.toPrecision(7).toString()
     content = '<b>Option Menu</b><br><div>'
-    icons = ['humanoid', 'fiend', 'beast', 'greenmarker', 'bluemarker', 'redmarker']
+    icons = [
+        'humanoid', 'fiend', 'beast', 
+        'greenmarker', 'bluemarker', 'redmarker',
+        'mephit', 'werebear', 'walker'
+    ]
     chars = searchParams.get("chars").split(';')
     for (i = 0; i < chars.length; i++) {
         icons.push(chars[i].split(',')[0]);
