@@ -23,6 +23,8 @@ var lyr6 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd6/{z}/{x}/{y
 
 // Map
 var map = L.map("mapid", {
+    zoomDelta: 0.5,
+    zoomSnap: 0.5,
     // center: default_center,
     zoom: 14,
     minZoom: 6,
@@ -194,7 +196,7 @@ var markerCount = 0;
 // Add custom points
 function addPoint(lng2, lat2, customName = 'humanoid') {
     var customIcon = L.icon({
-        iconUrl: 'https://epcarraway.blob.core.windows.net/dnd/' + customName + '.png',
+        iconUrl: 'https://epcarraway.blob.core.windows.net/dnd/' + customName.toLocaleLowerCase() + '-icon.png',
         iconSize:     [64, 64], 
         iconAnchor:   [32, 64], 
         popupAnchor:  [0, -32]
@@ -247,12 +249,26 @@ var rightpopup = L.popup();
 function onMapRightClick(e) {
     lng2 = e.latlng.lng.toPrecision(7).toString()
     lat2 = e.latlng.lat.toPrecision(7).toString()
-    content = '<b>Option Menu</b><br><div>'
-    icons = [
+
+    var icons = [
         'humanoid', 'fiend', 'beast', 
-        'greenmarker', 'bluemarker', 'redmarker',
-        'mephit', 'werebear', 'walker'
+        'greenmarker', 'bluemarker', 'redmarker'
     ]
+    
+    var queryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=icons&headers=1&tq=' + encodeURIComponent('SELECT A, B, C');
+    console.log(queryString);
+    query2 = new google.visualization.Query(queryString);
+    query2.send(chartfunction);
+    function chartfunction (response) {
+        // Get and map data
+        var data = response.getDataTable();
+        for (i=0; i<data.getNumberOfRows(); i++) {
+            var iconName = data.getValue(i, 0);
+            console.log(iconName);
+            icons.push(iconName);
+        };
+        console.log(icons);
+    content = '<b>Add Icon</b><br><div>'
     chars = searchParams.get("chars").split(';')
     for (i = 0; i < chars.length; i++) {
         icons.push(chars[i].split(',')[0]);
@@ -260,7 +276,7 @@ function onMapRightClick(e) {
     for (i = 0; i < icons.length; i++) {
         content = content + '<button onclick="addPoint(' + 
         lng2 + ',' + lat2 + ",'" + icons[i] + "'" + 
-        ')" type="buttons" class="btn btn-danger" id="addPointId" style="margin: 2px;">Add ' + 
+        ')" type="buttons" class="btn btn-danger" id="addPointId" style="margin: 2px;">' + 
         icons[i] + '</button>';
         content = content + '</div>'
     };
@@ -268,6 +284,8 @@ function onMapRightClick(e) {
         .setLatLng(e.latlng)
         .setContent(content)
         .openOn(map);
+    };
+    
 };
 
 map.on('dblclick', onMapClick);
