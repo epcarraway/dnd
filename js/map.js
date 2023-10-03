@@ -9,17 +9,17 @@ var white = L.tileLayer("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAA
 
 // Overlay layers (TMS)
 var lyr = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd7/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 18, maxZoom: 23, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 20, maxZoom: 23, attribution: ""});
 var lyr2 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd2/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 4, minNativeZoom: 6, maxNativeZoom: 12, maxZoom: 23, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 4, minNativeZoom: 6, maxNativeZoom: 13, maxZoom: 23, attribution: ""});
 var lyr3 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd3/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 10, minNativeZoom: 8, maxNativeZoom: 13, maxZoom: 23, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 10, minNativeZoom: 8, maxNativeZoom: 17, maxZoom: 23, attribution: ""});
 var lyr4 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd4/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 15, maxZoom: 23, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 17, maxZoom: 23, attribution: ""});
 var lyr5 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd5/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 15, maxZoom: 23, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 12, minNativeZoom: 12, maxNativeZoom: 17, maxZoom: 23, attribution: ""});
 var lyr6 = L.tileLayer('https://epcarraway.blob.core.windows.net/dnd6/{z}/{x}/{y}.png', 
-    {tms: true, opacity: 1, minZoom: 15, minNativeZoom: 15, maxNativeZoom: 18, maxZoom: 23, attribution: ""});
+    {tms: true, opacity: 1, minZoom: 14, minNativeZoom: 15, maxNativeZoom: 20, maxZoom: 23, attribution: ""});
 
 // Map
 var map = L.map("mapid", {
