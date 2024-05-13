@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="favicon.ico">
+    <meta name="description" content="Waterdeep Project">
+    <meta name="author" content="Evan Carraway">
+    <title>Waterdeep</title>
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="css/sticky-footer-navbar.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>  
+    <!-- Load the AJAX API aka Google API  -->
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+  </head>
+
+  <body class="d-flex flex-column h-100">
+    <!-- Header template -->
+    <div id="header"></div>
+
+    <!-- Begin page content -->
+    <main class="flex-shrink-0">
+      <div hidden id="chapter-container" class="container">
+        <h1 id="chapter-title" style="text-align:center;padding-top:50px;vertical-align:middle"></h1>
+        <!-- <div id="chapter-date" style="padding-top:10px;"></div> -->
+        <div id="chapter-body" style="padding-top:10px;"></div>
+      </div>
+      <div hidden id="table-container" class="container">  
+        <table id="data-table" class="display" style="width:100%">
+          <thead>
+            <tr>
+              <th>name</th>
+              <th>description</th>
+              <th>type</th>
+              <th>body</th>
+            </tr>
+          </thead>
+        </table>
+      </div>  
+    </main>
+
+    <!-- Footer Area -->
+    <footer class="footer mt-auto py-3 bg-white">
+      <div class="container-fluid">
+        <span class="text-muted">© Carraway 2024</span>
+      </div>
+    </footer>
+    
+    <!-- Bootstrap core JavaScript-->
+    <script src="js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="js/jquery-3.6.0.js"></script> 
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	  <script>
+      $(function(){
+        $("#header").load("header.html",  function(){
+          document.getElementById("chapters").classList.add('active');
+        });
+      });
+    </script>
+    <script>
+      // Creates a DataTable from source JSON
+       $(document).ready(function() {
+        var searchParams = new URLSearchParams(window.location.search);
+        var chapter = 0
+        if (searchParams.has("c")) {
+          chapter = searchParams.get("c")
+        };
+        // Load the visualization API and the corechart packages
+        google.charts.load('current',{'packages':['corechart','table']});
+        // Set callback when the google visualization API is loaded
+        google.charts.setOnLoadCallback(drawAllSheets);
+        function drawAllSheets() {
+          var tableRows = Array();
+          console.log(chapter);
+          if (chapter==0) {
+            document.getElementById("table-container").hidden = false;
+            var chapterQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=chapters&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, D');
+            chapterQuery = new google.visualization.Query(chapterQueryString);
+            chapterQuery.send(chapterChartFunction);
+            function chapterChartFunction (chapterResponse) {
+                // Get and data
+                var chapterData = chapterResponse.getDataTable();
+                for (i=0; i<chapterData.getNumberOfRows(); i++) {
+                  var chapterNumber = chapterData.getValue(i, 0);
+                  var chapterName = chapterData.getValue(i, 1);
+                  var chapterUrl = '<a href="chapters.html?c=' + chapterNumber + '">' + chapterName + '</a>'
+                  var chapterDate = chapterData.getValue(i, 2);
+                  var chapterBody = chapterData.getValue(i, 3);
+                  tableRows = tableRows.concat([[chapterNumber, chapterUrl, chapterDate, chapterBody]]);
+                };
+                $('#data-table').DataTable( {
+                  paging: false,
+                  order: [[0, 'desc']],
+                  data: tableRows,
+                  "columns": [
+                      { 
+                        "title": "chapter",
+                        "render": function(title, type, row, meta){
+                          if(type === 'display'){
+                              title = title;
+                          }
+                          
+                          return title;
+                        }
+                    },
+                    { "title": "title" },
+                    { "title": "date" }, 
+                    { "title": "body",
+                      "visible": false,
+                      "searchable": true }
+                  ]
+                } );
+            };
+          } else {
+            document.getElementById("chapter-container").hidden = false;
+            var chapterQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=chapters&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, E WHERE A=' + chapter);
+            console.log(chapterQueryString);
+            chapterQuery = new google.visualization.Query(chapterQueryString);
+            chapterQuery.send(chapterChartFunction);
+            function chapterChartFunction (chapterResponse) {
+                // Get and data
+                var chapterData = chapterResponse.getDataTable();
+                var chapterNumber = chapterData.getValue(0, 0);
+                var chapterName = chapterData.getValue(0, 1);
+                var chapterDate = chapterData.getValue(0, 2);
+                var chapterBody = chapterData.getValue(0, 3);
+                console.log(chapterNumber, chapterName);
+                document.getElementById("chapter-title").innerText = 'Chapter ' + chapterNumber + ': ' + chapterName;
+                document.getElementById("chapter-body").innerHTML = chapterBody;
+            };
+          }
+        };
+      } );
+     </script> 
+  </body>
+</html>

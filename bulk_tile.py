@@ -12,6 +12,8 @@ import time
 import shutil
 from glob import glob
 
+PIL.Image.MAX_IMAGE_PIXELS = None
+
 
 def upload_folder_to_blob(folder_path, config):
     """Uploads a local file to Azure Blob Storage"""
@@ -76,7 +78,7 @@ for t in text:
     print(str(wid) + "x" + str(hgt) + ':' + str(ratio))
     if rescale_factor != 1:
         print('rescaling input image by a factor of {}...'.format(rescale_factor))
-        img = img.resize((round(wid * rescale_factor), round(hgt * rescale_factor)), PIL.Image.ANTIALIAS)
+        img = img.resize((round(wid * rescale_factor), round(hgt * rescale_factor)), PIL.Image.LANCZOS)
         img.show()
         time.sleep(5)
         img.save('temp_map.png')

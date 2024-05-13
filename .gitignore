@@ -7,6 +7,7 @@ __pycache__/*
 *.out
 *.png
 *.jpg
+*.jpeg
 *.tif
 *.xcf
 temp *
@@ -15,3 +16,6 @@ output_*
 *config.json
 *settings*
 test*
+bulk_reassemble.py
+read_notes.py
+split_upscale.py
