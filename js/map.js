@@ -380,7 +380,7 @@ function drawAllSheets() {
         };
     };
     // Create Google Sheets query
-    var queryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=points&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, D');
+    var queryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=points&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, D, E');
     console.log(queryString);
     var charIcon2 = L.icon({
         iconUrl: 'https://epcarraway.blob.core.windows.net/dnd/marker.png',
@@ -398,6 +398,22 @@ function drawAllSheets() {
             var lat1 = data.getValue(i, 1);
             var lng1 = data.getValue(i, 2);
             var desc1 = data.getValue(i, 3);
+            var icon1 = data.getValue(i, 4);
+            if (icon1 != "") {
+                var charIcon2 = L.icon({
+                    iconUrl: icon1,
+                    iconSize:     [64, 64], 
+                    iconAnchor:   [32, 60], 
+                    popupAnchor:  [0, -64] 
+                });
+            } else {
+                var charIcon2 = L.icon({
+                    iconUrl: 'https://epcarraway.blob.core.windows.net/dnd/marker.png',
+                    iconSize:     [32, 64], 
+                    iconAnchor:   [16, 60], 
+                    popupAnchor:  [0, -64] 
+                });
+            }
             L.marker([lng1, lat1],{
                 icon: charIcon2,
                 riseOnHover: true
