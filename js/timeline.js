@@ -19,7 +19,8 @@ vis.moment.updateLocale('harptos_us', {
         L: 'MM/DD/YYYY',
         LL: 'MMMM D YYYY',
         LLL: 'MMMM D YYYY N',
-        LLLL: 'dddd, MMMM Do YYYY N'},
+        LLLL: 'dddd, MMMM Do YYYY N',
+        LLLLL: 'YYYYYY-MM-DDTHH:mm:ss'},
     ordinal : function (n, token) {
         const s = ["th", "st", "nd", "rd"];
         const v = n % 100;
@@ -68,10 +69,11 @@ function drawAllSheets() {
                 var content1 = data.getValue(i, 0).replace(/\n/g, "<br>");
                 var start1 = data.getValue(i, 1);
                 var end1 = data.getValue(i, 2);
-                var content1 = vis.moment(start1).format("MMMM D, YYYY [DR], h:mm a") + "<br>" + content1;
+                var start1a = vis.moment(start1, 'YYYYYY-MM-DDTHH:mm:ss');
+                var content1 = vis.moment(start1a).format("MMMM D, YYYY [DR], h:mm a") + "<br>" + content1;
                 data2[i]["id"] = i;
                 data2[i]["content"] = content1;
-                data2[i]["start"] = start1;
+                data2[i]["start"] = start1a;
                 if (start1 != end1) {
                     data2[i]["end"] = end1;
                 };
