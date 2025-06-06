@@ -25,6 +25,10 @@
       <div hidden id="chapter-container" class="container">
         <h1 id="chapter-title" style="text-align:center;padding-top:50px;vertical-align:middle"></h1>
         <!-- <div id="chapter-date" style="padding-top:10px;"></div> -->
+        <div id="chapter-arrows" style="padding-top:10px;padding-bottom:30px;">
+          <div id="chapter-arrows-left" style="text-align: left; float: left"></div>
+          <div id="chapter-arrows-right" style="text-align: right; float: right"></div>
+        </div>
         <div id="chapter-body" style="padding-top:10px;"></div>
       </div>
       <div hidden id="table-container" class="container">  
@@ -115,20 +119,36 @@
             };
           } else {
             document.getElementById("chapter-container").hidden = false;
-            var chapterQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=chapters&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, E WHERE A=' + chapter);
-            console.log(chapterQueryString);
-            chapterQuery = new google.visualization.Query(chapterQueryString);
-            chapterQuery.send(chapterChartFunction);
-            function chapterChartFunction (chapterResponse) {
+            var chapterMaxQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=chapters&headers=1&tq=' + encodeURIComponent('SELECT A ORDER BY A DESC LIMIT 1');
+            console.log(chapterMaxQueryString);
+            chapterMaxQuery = new google.visualization.Query(chapterMaxQueryString);
+            chapterMaxQuery.send(chapterChartFunctionMax);
+            function chapterChartFunctionMax (chapterResponse) {
                 // Get and data
                 var chapterData = chapterResponse.getDataTable();
-                var chapterNumber = chapterData.getValue(0, 0);
-                var chapterName = chapterData.getValue(0, 1);
-                var chapterDate = chapterData.getValue(0, 2);
-                var chapterBody = chapterData.getValue(0, 3);
-                console.log(chapterNumber, chapterName);
-                document.getElementById("chapter-title").innerText = 'Chapter ' + chapterNumber + ': ' + chapterName;
-                document.getElementById("chapter-body").innerHTML = chapterBody;
+                var chapterNumberLast = chapterData.getValue(0, 0);
+                console.log(chapterNumberLast);
+                var chapterQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=chapters&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, E WHERE A=' + chapter);
+                console.log(chapterQueryString);
+                chapterQuery = new google.visualization.Query(chapterQueryString);
+                chapterQuery.send(chapterChartFunction);
+                function chapterChartFunction (chapterResponse) {
+                    // Get and data
+                    var chapterData = chapterResponse.getDataTable();
+                    var chapterNumber = chapterData.getValue(0, 0);
+                    var chapterNumberPrev = Math.max(chapterNumber - 1, 1);
+                    var chapterName = chapterData.getValue(0, 1);
+                    var chapterDate = chapterData.getValue(0, 2);
+                    var chapterBody = chapterData.getValue(0, 3);
+                    
+                    var chapterNumberNext = Math.min(chapterNumber + 1, chapterNumberLast);
+                    console.log(chapterNumber, chapterName);
+                    document.getElementById("chapter-title").innerText = 'Chapter ' + chapterNumber + ': ' + chapterName;
+                    '<a href="chapters.html?c=' + chapterNumber + '">' + chapterName + '</a>'
+                    document.getElementById("chapter-arrows-left").innerHTML = '<a href="chapters.html?c=' + chapterNumberPrev + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>Previous chapter</a>';
+                    document.getElementById("chapter-arrows-right").innerHTML = '<a href="chapters.html?c=' + chapterNumberNext + '" class="text-decoration-none">Next chapter<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a>';
+                    document.getElementById("chapter-body").innerHTML = chapterBody;
+                };
             };
           }
         };
