@@ -77,58 +77,74 @@
           pointQuery = new google.visualization.Query(pointQueryString);
           pointQuery.send(pointChartFunction);
           function pointChartFunction (pointResponse) {
-              var placeNames = []
+            var placeNames = []
+            // Get and map data
+            var pointData = pointResponse.getDataTable();
+            // console.log(tableRows.length);
+            for (i=0; i<pointData.getNumberOfRows(); i++) {
+                var pointName = pointData.getValue(i, 0);
+                placeNames.push(pointName);
+                var pointLongitude = pointData.getValue(i, 1);
+                var pointLatitude = pointData.getValue(i, 2);
+                var pointDescription = pointData.getValue(i, 3);
+                var pointUrl = '<a href="map.html?zoomLevel=16&lat=' + pointLatitude + ' &lng=' + pointLongitude + '">' + pointName + '</a>'
+                console.log(pointName, pointDescription);
+                tableRows = tableRows.concat([[pointUrl, pointDescription, "Place"]]);
+            };
+            var characterQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=people&headers=1&tq=' + encodeURIComponent('SELECT A, B');
+            console.log(characterQueryString);
+            characterQuery = new google.visualization.Query(characterQueryString);
+            characterQuery.send(characterChartFunction);
+            function characterChartFunction (characterResponse) {
               // Get and map data
-              var pointData = pointResponse.getDataTable();
+              var characterData = characterResponse.getDataTable();
               // console.log(tableRows.length);
-              for (i=0; i<pointData.getNumberOfRows(); i++) {
-                  var pointName = pointData.getValue(i, 0);
-                  placeNames.push(pointName);
-                  var pointLongitude = pointData.getValue(i, 1);
-                  var pointLatitude = pointData.getValue(i, 2);
-                  var pointDescription = pointData.getValue(i, 3);
-                  var pointUrl = '<a href="map.html?zoomLevel=16&lat=' + pointLatitude + ' &lng=' + pointLongitude + '">' + pointName + '</a>'
-                  console.log(pointName, pointDescription);
-                  tableRows = tableRows.concat([[pointUrl, pointDescription, "Place"]]);
+              for (i=0; i<characterData.getNumberOfRows(); i++) {
+                var characterName = characterData.getValue(i, 0);
+                if (!(placeNames.includes(characterName))) {
+                  var characterDescription = characterData.getValue(i, 1);
+                  var characterUrl = '<a href="network.html?charLabel=' + encodeURIComponent(characterName) + '">' + characterName + '</a>'
+                  console.log(characterName, characterDescription);
+                  tableRows = tableRows.concat([[characterUrl, characterDescription, "Character"]]);
+                };
               };
-              var characterQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=people&headers=1&tq=' + encodeURIComponent('SELECT A, B');
-              console.log(characterQueryString);
-              characterQuery = new google.visualization.Query(characterQueryString);
-              characterQuery.send(characterChartFunction);
-              function characterChartFunction (characterResponse) {
-                  // Get and map data
-                  var characterData = characterResponse.getDataTable();
-                  // console.log(tableRows.length);
-                  for (i=0; i<characterData.getNumberOfRows(); i++) {
-                      var characterName = characterData.getValue(i, 0);
-                      if (!(placeNames.includes(characterName))) {
-                        var characterDescription = characterData.getValue(i, 1);
-                        var characterUrl = '<a href="network.html?charLabel=' + encodeURIComponent(characterName) + '">' + characterName + '</a>'
-                        console.log(characterName, characterDescription);
-                        tableRows = tableRows.concat([[characterUrl, characterDescription, "Character"]]);
-                      };
-                  };
-                  $('#data-table').DataTable( {
-                    paging: false,
-                    data: tableRows,
-                    "columns": [
-                        { 
-                          "title": "name",
-                          "render": function(title, type, row, meta){
-                            if(type === 'display'){
-                                title = title;
-                            }
-                            
-                            return title;
+              var questQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=quests&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, D');
+              console.log(questQueryString);
+              questQuery = new google.visualization.Query(questQueryString);
+              questQuery.send(questChartFunction);
+              function questChartFunction (questResponse) {
+                // Get and map data
+                var questData = questResponse.getDataTable();
+                // console.log(tableRows.length);
+                for (i=0; i<questData.getNumberOfRows(); i++) {
+                  var questId = questData.getValue(i, 0);
+                  var questName = questData.getValue(i, 1);
+                  var questDescription = questData.getValue(i, 3);
+                  var questUrl = '<a href="quests.html?c=' + encodeURIComponent(questId) + '">' + questName + '</a>';
+                  console.log(questName, questDescription);
+                  tableRows = tableRows.concat([[questUrl, questDescription, "Quest"]]);
+                };
+                $('#data-table').DataTable( {
+                  paging: false,
+                  data: tableRows,
+                  "columns": [
+                      { 
+                        "title": "name",
+                        "render": function(title, type, row, meta){
+                          if(type === 'display'){
+                              title = title;
                           }
-                      },
-                      { "title": "description" },
-                      { "title": "type" }
-                    ]
-                  } );
+                          
+                          return title;
+                        }
+                    },
+                    { "title": "description" },
+                    { "title": "type" }
+                  ]
+                } );
               };
+            };
           };
-          
         };
       } );
      </script> 
