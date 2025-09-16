@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="favicon.ico">
+    <meta name="description" content="Waterdeep Project">
+    <meta name="author" content="Evan Carraway">
+    <title>Waterdeep</title>
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="css/sticky-footer-navbar.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>  
+    <!-- Load the AJAX API aka Google API  -->
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+  </head>
+
+  <body  style="width:100%">
+    <!-- Header template -->
+    <div id="header"></div>
+
+    <!-- Begin page content -->
+    <main style="width:100%">
+      <div hidden id="achievement-container"  style="width:100%">
+        <h1 id="achievement-title"  class="container" style="text-align:center;padding-top:60px;vertical-align:middle"></h1>
+        <div id="achievement-arrows-top"  class="container" style="padding-top:10px;padding-bottom:30px;">
+          <div id="achievement-arrows-left-top" style="text-align: left; float: left"></div>
+          <div id="achievement-arrows-right-top" style="text-align: right; float: right"></div>
+        </div>
+        <div id="achievement-body" height="1100" style="width:100%"></div>
+        <div id="achievement-arrows-bottom"  class="container" style="padding-top:10px;padding-bottom:30px;">
+          <div id="achievement-arrows-left-bottom" style="text-align: left; float: left"></div>
+          <div id="achievement-arrows-right-bottom" style="text-align: right; float: right"></div>
+        </div>
+      </div>
+      <div hidden id="table-container" class="container" >  
+        <table id="data-table" class="display" style="width:100%">
+          <thead>
+            <tr>
+              <th>badge</th>
+              <th>chapter</th>
+              <th>title</th>
+              <th>description</th>
+              <th>reward</th>
+              <th>achiever</th>
+              <th>date</th>
+            </tr>
+          </thead>
+        </table>
+      </div>  
+    </main>
+
+    <!-- Footer Area -->
+    <footer class="footer mt-auto py-3 bg-white">
+      <div class="container-fluid">
+        <span class="text-muted">© Carraway 2025</span>
+      </div>
+    </footer>
+    
+    <!-- Bootstrap core JavaScript-->
+    <script src="js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="js/jquery-3.6.0.js"></script> 
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	  <script>
+      $(function(){
+        $("#header").load("header.html",  function(){
+          document.getElementById("achievements").classList.add('active');
+        });
+      });
+    </script>
+    <script>
+      // Creates a DataTable from source JSON
+       $(document).ready(function() {
+        var searchParams = new URLSearchParams(window.location.search);
+        var chapter = 0
+        var achievement = 0
+        if (searchParams.has("c")) {
+          chapter = searchParams.get("c")
+        };
+        if (searchParams.has("a")) {
+          achievement = searchParams.get("a")
+        };
+        // Load the visualization API and the corechart packages
+        google.charts.load('current',{'packages':['corechart','table']});
+        // Set callback when the google visualization API is loaded
+        google.charts.setOnLoadCallback(drawAllSheets);
+        async function drawAllSheets() {
+          var tableRows = Array();
+          var ach_data;
+          const res = await fetch('https://epcarraway.blob.core.windows.net/dnd/ach/achievements.json')
+          ach_data = await res.json();
+          ach_data_sorted = ach_data.sort((a, b) => b.a_num - a.a_num).sort((a, b) => b.ch_num - a.ch_num)
+          if (chapter==0 || achievement==0) {
+            console.log("parsing single page response");
+            document.getElementById("table-container").hidden = false;
+            var chapterQueryString = '';
+                for (i=0; i<ach_data_sorted.length; i++) {
+                  var chapterNumber = ach_data_sorted[i].ch_num;
+                  var chapterNumberUrl = '<a href="chapters.html?c=' + chapterNumber + '">' + chapterNumber + '</a>'
+                  var achievementNumber = ach_data_sorted[i].a_num;
+                  var achievementName = ach_data_sorted[i].title;
+                  var achievementThumbnailUrl = '<a href="achievements.html?c=' + chapterNumber + '&a=' + achievementNumber + '"><img src="https://epcarraway.blob.core.windows.net/dnd/ach/' + chapterNumber + '_' + achievementNumber + '.png" style="width:80px"></a>'
+                  var achievementUrl = '<a href="achievements.html?c=' + chapterNumber + '&a=' + achievementNumber + '">' + achievementName + '</a>'
+                  var achievementDate = ach_data_sorted[i].date_time;
+                  var achievementDescription = ach_data_sorted[i].description;
+                  var achievementAchievers = ach_data_sorted[i].achievers.join(", ");
+                  var achievementReward = ach_data_sorted[i].reward;
+                  tableRows = tableRows.concat([[achievementThumbnailUrl, chapterNumberUrl, achievementUrl, achievementDescription, achievementReward, achievementAchievers, achievementDate]]);
+                };
+                $('#data-table').DataTable( {
+                  paging: false,
+                  order: [[1, 'desc']],
+                  data: tableRows,
+                  "columns": [
+                    { "title": "thumbnail" },
+                    { 
+                        "title": "chapter",
+                        "className": 'dt-body-center',
+                        "render": function(title, type, row, meta){
+                          if(type === 'display'){
+                              title = title;
+                          }
+                          
+                          return title;
+                        }
+                    },
+                    { "title": "title" },
+                    { "title": "description" }, 
+                    { "title": "reward" }, 
+                    { "title": "achiever" }, 
+                    { "title": "date" }
+                  ]
+                } );
+          } else {
+            console.log("parsing multi page response");
+            document.getElementById("achievement-container").hidden = false;
+            var ach_data_sorted = ach_data.sort((a, b) => a.a_num - b.a_num).sort((a, b) => a.ch_num - b.ch_num)
+                var achievementNumberIndexLast = ach_data_sorted.length - 1
+                var chapterNumberLast = ach_data_sorted.at(-1).ch_num;
+                var chapterNumberFirst = ach_data_sorted.at(0).ch_num;
+                var achievementNumberLast = ach_data_sorted.at(-1).a_num;
+                var achievementNumberFirst = ach_data_sorted.at(0).ch_num;
+                var ach_data_filtered = ach_data_sorted.filter(elem => elem.ch_num==chapter && elem.a_num==achievement)
+                var achievementNumberIndex = ach_data_sorted.findIndex(elem => elem.ch_num==chapter && elem.a_num==achievement)
+                var achievementName = ach_data_filtered[0].title;
+                var achievementNumberIndexPrev = Math.max(achievementNumberIndex - 1, 0);
+                var chapterNumberPrev = ach_data_sorted[achievementNumberIndexPrev].ch_num;
+                var achievementNumberPrev = ach_data_sorted[achievementNumberIndexPrev].a_num;
+                var achievementNumberIndexNext = Math.min(achievementNumberIndex + 1, achievementNumberIndexLast);
+                var chapterNumberNext = ach_data_sorted[achievementNumberIndexNext].ch_num;
+                var achievementNumberNext = ach_data_sorted[achievementNumberIndexNext].a_num;
+                console.log("chapter: " + chapter, "achievement: " + achievement);
+                document.getElementById("achievement-title").innerText = 'Achievement ' + (achievementNumberIndex+1) + ': ' + achievementName;
+                '<a href="achievements.html?c=' + chapter + '&a=' + achievement + '">' + achievementName + '</a>'
+                document.getElementById("achievement-arrows-left-top").innerHTML = ' / <a href="achievements.html?c=' + 1 + '&a=' + 1 + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>First</a>';
+                document.getElementById("achievement-arrows-left-top").innerHTML += ' / <a href="achievements.html?c=' + chapterNumberPrev + '&a=' + achievementNumberPrev + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>Previous</a> / ';
+                document.getElementById("achievement-arrows-right-top").innerHTML = ' / <a href="achievements.html?c=' + chapterNumberNext + '&a=' + achievementNumberNext + '" class="text-decoration-none">Next<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a>';
+                document.getElementById("achievement-arrows-right-top").innerHTML += ' / <a href="achievements.html?c=' + chapterNumberLast + '&a=' + achievementNumberLast + '" class="text-decoration-none">Last<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a> / ';
+                document.getElementById("achievement-arrows-left-bottom").innerHTML = ' / <a href="achievements.html?c=' + 1 + '&a=' + 1 + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>First</a>';
+                document.getElementById("achievement-arrows-left-bottom").innerHTML += ' / <a href="achievements.html?c=' + chapterNumberPrev + '&a=' + achievementNumberPrev + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>Previous</a> / ';
+                document.getElementById("achievement-arrows-right-bottom").innerHTML = ' / <a href="achievements.html?c=' + chapterNumberNext + '&a=' + achievementNumberNext + '" class="text-decoration-none">Next<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a>';
+                document.getElementById("achievement-arrows-right-bottom").innerHTML += ' / <a href="achievements.html?c=' + chapterNumberLast + '&a=' + achievementNumberLast + '" class="text-decoration-none">Last<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a> / ';
+                document.getElementById("achievement-body").innerHTML = '<iframe id="myIframe" src="https://epcarraway.blob.core.windows.net/dnd/ach/' + chapter + '_' + achievement + '.html" frameborder="0" width="100%" height="1000" style="border:none;height:1000px"/>';
+            };
+            };
+          });
+     </script> 
+  </body>
+</html>
