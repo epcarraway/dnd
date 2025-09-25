@@ -87,7 +87,8 @@
           var char_data;
           const res = await fetch('https://epcarraway.blob.core.windows.net/dnd/char/chars.json')
           char_data = await res.json();
-          char_data_sorted = char_data.sort((a, b) => b.name_key - a.name_key)
+          // char_data_sorted = char_data.sort((a, b) => b.name_key - a.name_key)
+          char_data_sorted = char_data
           if (name_key==0) {
             console.log("parsing single page response");
             document.getElementById("table-container").hidden = false;
@@ -106,7 +107,7 @@
                 };
                 $('#data-table').DataTable( {
                   paging: false,
-                  order: [[1, 'desc']],
+                 // order: [[1, 'desc']],
                   data: tableRows,
                   "columns": [
                     { "title": "thumbnail" },
@@ -132,33 +133,34 @@
           } else {
             console.log("parsing multi page response");
             document.getElementById("character-container").hidden = false;
-            var char_data_sorted = char_data.sort((a, b) => a.name_key - b.name_key)
-                var characterKeyIndexLast = char_data_sorted.length - 1
-                var characterKeyLast = char_data_sorted.at(-1).name_key;
-                var characterKeyFirst = char_data_sorted.at(0).name_key;
-                var char_data_filtered = char_data_sorted.filter(elem => elem.name_key==name_key)
-                var characterKeyIndex = char_data_sorted.findIndex(elem => elem.name_key==name_key)
-                var characterName = char_data_filtered[0].name_key;
-                var characterFullName = char_data_filtered[0].full_name;
-                var characterKeyIndexPrev = Math.max(characterKeyIndex - 1, 0);
-                var characterKeyPrev = char_data_sorted[characterKeyIndexPrev].name_key;
-                var characterKeyIndexNext = Math.min(characterKeyIndex + 1, characterKeyIndexLast);
-                var characterKeyNext = char_data_sorted[characterKeyIndexNext].name_key;
-                console.log("name_key: " + name_key);
-                document.getElementById("character-title").innerText = characterFullName;
-                '<a href="characters.html?c=' + characterKeyIndex + '">' + characterFullName + '</a>'
-                document.getElementById("character-arrows-left-top").innerHTML = ' / <a href="characters.html?c=' + characterKeyFirst + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>First</a>';
-                document.getElementById("character-arrows-left-top").innerHTML += ' / <a href="characters.html?c=' + characterKeyPrev +  '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>Previous</a> / ';
-                document.getElementById("character-arrows-right-top").innerHTML = ' / <a href="characters.html?c=' + characterKeyNext + '" class="text-decoration-none">Next<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a>';
-                document.getElementById("character-arrows-right-top").innerHTML += ' / <a href="characters.html?c=' + characterKeyLast + '" class="text-decoration-none">Last<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a> / ';
-                document.getElementById("character-arrows-left-bottom").innerHTML = ' / <a href="characters.html?c=' + characterKeyFirst + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>First</a>';
-                document.getElementById("character-arrows-left-bottom").innerHTML += ' / <a href="characters.html?c=' + characterKeyPrev  + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>Previous</a> / ';
-                document.getElementById("character-arrows-right-bottom").innerHTML = ' / <a href="characters.html?c=' + characterKeyNext + '" class="text-decoration-none">Next<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a>';
-                document.getElementById("character-arrows-right-bottom").innerHTML += ' / <a href="characters.html?c=' + characterKeyLast + '" class="text-decoration-none">Last<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a> / ';
-                document.getElementById("character-body").innerHTML = '<iframe id="myIframe" src="https://epcarraway.blob.core.windows.net/dnd/char/' + name_key + '.html" frameborder="0" width="100%" height="1000" style="border:none;height:1000px"/>';
-            };
-            };
-          });
+            //var char_data_sorted = char_data.sort((a, b) => a.name_key - b.name_key)
+            var char_data_sorted = char_data
+            var characterKeyIndexLast = char_data_sorted.length - 1
+            var characterKeyLast = char_data_sorted.at(-1).name_key;
+            var characterKeyFirst = char_data_sorted.at(0).name_key;
+            var char_data_filtered = char_data_sorted.filter(elem => elem.name_key==name_key)
+            var characterKeyIndex = char_data_sorted.findIndex(elem => elem.name_key==name_key)
+            var characterName = char_data_filtered[0].name_key;
+            var characterFullName = char_data_filtered[0].full_name;
+            var characterKeyIndexPrev = Math.max(characterKeyIndex - 1, 0);
+            var characterKeyPrev = char_data_sorted[characterKeyIndexPrev].name_key;
+            var characterKeyIndexNext = Math.min(characterKeyIndex + 1, characterKeyIndexLast);
+            var characterKeyNext = char_data_sorted[characterKeyIndexNext].name_key;
+            console.log("name_key: " + name_key);
+            document.getElementById("character-title").innerText = characterFullName;
+            '<a href="characters.html?c=' + characterKeyIndex + '">' + characterFullName + '</a>'
+            document.getElementById("character-arrows-left-top").innerHTML = ' / <a href="characters.html?c=' + characterKeyFirst + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>First</a>';
+            document.getElementById("character-arrows-left-top").innerHTML += ' / <a href="characters.html?c=' + characterKeyPrev +  '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>Previous</a> / ';
+            document.getElementById("character-arrows-right-top").innerHTML = ' / <a href="characters.html?c=' + characterKeyNext + '" class="text-decoration-none">Next<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a>';
+            document.getElementById("character-arrows-right-top").innerHTML += ' / <a href="characters.html?c=' + characterKeyLast + '" class="text-decoration-none">Last<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a> / ';
+            document.getElementById("character-arrows-left-bottom").innerHTML = ' / <a href="characters.html?c=' + characterKeyFirst + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>First</a>';
+            document.getElementById("character-arrows-left-bottom").innerHTML += ' / <a href="characters.html?c=' + characterKeyPrev  + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>Previous</a> / ';
+            document.getElementById("character-arrows-right-bottom").innerHTML = ' / <a href="characters.html?c=' + characterKeyNext + '" class="text-decoration-none">Next<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a>';
+            document.getElementById("character-arrows-right-bottom").innerHTML += ' / <a href="characters.html?c=' + characterKeyLast + '" class="text-decoration-none">Last<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a> / ';
+            document.getElementById("character-body").innerHTML = '<iframe id="myIframe" src="https://epcarraway.blob.core.windows.net/dnd/char/' + name_key + '.html" frameborder="0" width="100%" height="1000" style="border:none;height:1000px"/>';
+          };
+        };
+      });
      </script> 
   </body>
 </html>
