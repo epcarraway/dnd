@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="favicon.ico">
+    <meta name="description" content="Waterdeep Project - Items">
+    <meta name="author" content="Evan Carraway">
+    <title>Waterdeep - Items</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="css/sticky-footer-navbar.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>  
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+  </head>
+
+  <body  style="width:100%">
+    <div id="header"></div>
+
+    <main style="width:100%">
+      <div hidden id="item-container"  class="container" style="width:100%; padding-top:60px;">
+        <h1 id="item-title"  class="container" style="text-align:center;padding-bottom:30px;vertical-align:middle"></h1>
+        <div id="item-arrows-top"  class="container" style="padding-top:10px;padding-bottom:30px;">
+          <div style="text-align: center;">
+            <a href="items.html" class="btn btn-primary">← Back to All Items</a>
+          </div>
+        </div>
+        <div id="item-body" class="p-3 border rounded shadow-sm bg-light" style="width:100%">
+        </div>
+        <div id="item-arrows-bottom"  class="container" style="padding-top:30px;padding-bottom:30px;">
+          <div style="text-align: center;">
+            <a href="items.html" class="btn btn-primary">← Back to All Items</a>
+          </div>
+        </div>
+      </div>
+      
+      <div hidden id="table-container" class="container" style="padding-top:60px;">  
+        <h1 class="text-center" style="padding-bottom:30px;">All Magical Items</h1>
+        <table id="data-table" class="display" style="width:100%">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Full Name</th>
+              <th>Rarity</th>
+              <th>Category</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+        </table>
+      </div>  
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-white">
+      <div class="container-fluid">
+        <span class="text-muted">© Carraway 2025</span>
+      </div>
+    </footer>
+    
+    <script src="js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="js/jquery-3.6.0.js"></script> 
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	  <script>
+      $(function(){
+        $("#header").load("header.html",  function(){
+          document.getElementById("items").classList.add('active'); // Assuming an 'items' link in header.html
+        });
+      });
+    </script>
+    <script>
+       $(document).ready(function() {
+        var searchParams = new URLSearchParams(window.location.search);
+        var item_key = searchParams.has("i") ? searchParams.get("i") : 0;
+        
+        google.charts.load('current',{'packages':['corechart','table']});
+        google.charts.setOnLoadCallback(drawAllSheets);
+
+        async function fetchItemData(filename) {
+            // Placeholder for a full fetch function. In a real environment, this URL would be updated.
+            const res = await fetch(filename);
+            return await res.json();
+        }
+
+        async function drawAllSheets() {
+          let item_data_full = [];
+          
+          // 1. Fetch the main item list
+          const items_short = await fetchItemData('https://epcarraway.blob.core.windows.net/dnd/item/items_short.json');
+
+          if (item_key === 0) {
+            // --- Table View Mode ---
+            document.getElementById("table-container").hidden = false;
+            let unique_items = new Map();
+
+            // Aggregate unique items and find the best single description
+            items_short.forEach(item => {
+                // If this is the first time seeing the item_key, or this entry is "rarer"
+                if (!unique_items.has(item.item_key) || (item.rarity > unique_items.get(item.item_key).rarity)) {
+                    unique_items.set(item.item_key, item);
+                }
+            });
+
+            let tableRows = [];
+            unique_items.forEach((item, key) => {
+                let itemUrl = '<a href="items.html?i=' + key + '">' + item.name + '</a>';
+                let thumbnailUrl = '<a href="items.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/item/' + key + '.png" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.png?text=No+Image\';" style="width:80px"></a>';
+                let categoryDisplay = Array.isArray(item.category) ? item.category.join(', ') : item.category;
+
+                tableRows.push([
+                    thumbnailUrl,
+                    itemUrl,
+                    item.full_name,
+                    item.rarity,
+                    categoryDisplay,
+                    item.short_description
+                ]);
+            });
+
+            $('#data-table').DataTable( {
+              paging: true,
+              pageLength: 100,
+              order: [[1, 'asc']],
+              data: tableRows,
+              columns: [
+                { "title": "Image" },
+                { "title": "Name", "className": 'dt-body-left' },
+                { "title": "Full Name" },
+                { "title": "Rarity" }, 
+                { "title": "Category" }, 
+                { "title": "Short Description" }
+              ]
+            });
+            
+          } else {
+            // --- Single Item View Mode ---
+            document.getElementById("item-container").hidden = false;
+            
+            // 2. Load the specific item's full detail JSON (e.g., holyavenger.json)
+            try {
+                item_data_full = await fetchItemData('https://epcarraway.blob.core.windows.net/dnd/item/' + item_key + '.json');
+            } catch (e) {
+                // Fallback to a single synthesized entry if a dedicated JSON file doesn't exist
+                const specific_entries = items_short.filter(i => i.item_key === item_key);
+                if (specific_entries.length > 0) {
+                    // Just pick the entry with the highest rarity as the "main" one for the title
+                    specific_entries.sort((a, b) => b.rarity - a.rarity);
+                    const main_entry = specific_entries[0];
+                    item_data_full = {
+                        name: main_entry.name,
+                        full_name: main_entry.full_name,
+                        rarity: main_entry.rarity,
+                        category: main_entry.category,
+                        description: main_entry.short_description,
+                        abilities: [], // Cannot be determined from short data
+                        characteristics: [], // Cannot be determined from short data
+                        item_chronology: [], // Built from all short entries below
+                        aliases: [], // Cannot be determined from short data
+                        first_ch_num: Math.min(...specific_entries.map(e => e.ch_num)),
+                        last_ch_num: Math.max(...specific_entries.map(e => e.ch_num)),
+                    };
+                } else {
+                    document.getElementById("item-title").innerText = "Item Not Found";
+                    return;
+                }
+            }
+            
+            // Filter all short entries for this item for the chronology section
+            const chronology_entries = items_short.filter(i => i.item_key === item_key)
+                .map(e => ({date: e.date, milestone: e.short_description, chapter: e.ch_num}))
+                .sort((a, b) => {
+                    // Sort by chapter number, then by date/time
+                    if (a.chapter !== b.chapter) return a.chapter - b.chapter;
+                    return new Date(a.date) - new Date(b.date);
+                });
+
+
+            // 3. Populate the Single Item View
+            document.getElementById("item-title").innerText = item_data_full.full_name;
+
+            let htmlContent = `
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <img src="https://epcarraway.blob.core.windows.net/dnd/item/${item_key}.png" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.png?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                        <h4 class="mb-3">${item_data_full.name} (${item_data_full.rarity})</h4>
+                    </div>
+                    <div class="col-md-8">
+                        <h2>Description & Lore</h2>
+                        <p>${item_data_full.description}</p>
+                        <hr>
+                        <p><strong>Category:</strong> ${Array.isArray(item_data_full.category) ? item_data_full.category.join(', ') : item_data_full.category}</p>
+                        <p><strong>Appears In:</strong> Chapter ${item_data_full.first_ch_num} to Chapter ${item_data_full.last_ch_num}</p>
+                        <p><strong>Characteristics:</strong> ${Array.isArray(item_data_full.characteristics) ? item_data_full.characteristics.join(', ') : 'N/A'}</p>
+                        <hr>
+                        <h4>Abilities</h4>
+                        <ul>
+                            ${Array.isArray(item_data_full.abilities) && item_data_full.abilities.length > 0 ? 
+                                item_data_full.abilities.map(a => `<li>${a}</li>`).join('') :
+                                '<li>Unknown</li>'}
+                        </ul>
+                    </div>
+                </div>
+                <hr>
+                <h2>Chronology & Notable Sightings</h2>
+                <ul class="list-group">
+                    ${item_data_full.item_chronology.map(e => 
+                        `<li class="list-group-item"><strong>${e.date}:</strong> ${e.milestone}</li>`
+                    ).join('')}
+                </ul>
+            `;
+            
+            document.getElementById("item-body").innerHTML = htmlContent;
+          }
+        }
+      });
+     </script> 
+  </body>
+</html>
