@@ -103,7 +103,7 @@
             let tableRows = [];
             unique_items.forEach((item, key) => {
                 let itemUrl = '<a href="items.html?i=' + key + '">' + item.name + '</a>';
-                let thumbnailUrl = '<a href="items.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/item/' + key + '.png" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.png?text=No+Image\';" style="width:80px"></a>';
+                let thumbnailUrl = '<a href="items.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/item/' + key + '-200.png" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.png?text=No+Image\';" style="width:80px"></a>';
                 let categoryDisplay = Array.isArray(item.category) ? item.category.join(', ') : item.category;
 
                 tableRows.push([
