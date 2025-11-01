@@ -8,6 +8,34 @@
     <meta name="description" content="Waterdeep Project - Items">
     <meta name="author" content="Evan Carraway">
     <title>Waterdeep - Items</title>
+    <style>
+        /* Embedded CSS for Styling */
+        #item-humorous-desc {
+            font-style: italic;
+            padding: 15px;
+            border-left: 4px solid #14110d;
+            margin: 20px 0;
+            /* background-color: #fef8f0; */
+            quotes: "“" "”";
+        }
+        #item-humorous-desc::before {
+            content: open-quote;
+            font-size: 1.5em;
+            font-weight: bold;
+            /* color: #d2b48c; */
+        }
+        #item-humorous-desc::after {
+            content: close-quote;
+            font-size: 1.5em;
+            font-weight: bold;
+            /* color: #d2b48c; */
+        }
+        #item-aliases {
+            font-size: 0.9em;
+            font-style: italic;
+            /* color: #d2b48c; */
+        }
+    </style>
     <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link href="css/sticky-footer-navbar.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>  
@@ -40,6 +68,7 @@
           <thead>
             <tr>
               <th>Image</th>
+              <th>chapter</th>
               <th>Name</th>
               <th>Full Name</th>
               <th>Rarity</th>
@@ -102,12 +131,15 @@
 
             let tableRows = [];
             unique_items.forEach((item, key) => {
+                let chapterNumber = item.ch_num;
+                let chapterNumberUrl = '<a href="chapters.html?c=' + chapterNumber + '">' + chapterNumber + '</a>'
                 let itemUrl = '<a href="items.html?i=' + key + '">' + item.name + '</a>';
                 let thumbnailUrl = '<a href="items.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/item/' + key + '-200.png" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.png?text=No+Image\';" style="width:80px"></a>';
                 let categoryDisplay = Array.isArray(item.category) ? item.category.join(', ') : item.category;
 
                 tableRows.push([
                     thumbnailUrl,
+                    chapterNumberUrl,
                     itemUrl,
                     item.full_name,
                     item.rarity,
@@ -119,10 +151,21 @@
             $('#data-table').DataTable( {
               paging: true,
               pageLength: 100,
-              order: [[1, 'asc']],
+              order: [[1, 'desc']],
               data: tableRows,
               columns: [
                 { "title": "Image" },
+                { 
+                  "title": "chapter",
+                  "className": 'dt-body-center',
+                  "render": function(title, type, row, meta){
+                    if(type === 'display'){
+                        title = title;
+                    }
+                    
+                    return title;
+                  }
+                },
                 { "title": "Name", "className": 'dt-body-left' },
                 { "title": "Full Name" },
                 { "title": "Rarity" }, 
@@ -138,6 +181,12 @@
             // 2. Load the specific item's full detail JSON (e.g., holyavenger.json)
             try {
                 item_data_full = await fetchItemData('https://epcarraway.blob.core.windows.net/dnd/item/' + item_key + '.json');
+                if (item_data_full && item_data_full.item_chronology) {
+                // 2. Assign the value to the new key
+                item_data_full.chronology = item_data_full.item_chronology;
+                // 3. Delete the old key
+                delete item_data_full.item_chronology;
+              }
             } catch (e) {
                 // Fallback to a single synthesized entry if a dedicated JSON file doesn't exist
                 const specific_entries = items_short.filter(i => i.item_key === item_key);
@@ -145,6 +194,7 @@
                     // Just pick the entry with the highest rarity as the "main" one for the title
                     specific_entries.sort((a, b) => b.rarity - a.rarity);
                     const main_entry = specific_entries[0];
+                    item_data_full.chronology ??= item_data_full.item_chronology;
                     item_data_full = {
                         name: main_entry.name,
                         full_name: main_entry.full_name,
@@ -153,7 +203,8 @@
                         description: main_entry.short_description,
                         abilities: [], // Cannot be determined from short data
                         characteristics: [], // Cannot be determined from short data
-                        item_chronology: [], // Built from all short entries below
+                        chronology: item_data_full.chronology, // Built from all short entries below
+                        item_chronology: item_data_full.chronology, // Built from all short entries below
                         aliases: [], // Cannot be determined from short data
                         first_ch_num: Math.min(...specific_entries.map(e => e.ch_num)),
                         last_ch_num: Math.max(...specific_entries.map(e => e.ch_num)),
@@ -163,17 +214,6 @@
                     return;
                 }
             }
-            
-            // Filter all short entries for this item for the chronology section
-            const chronology_entries = items_short.filter(i => i.item_key === item_key)
-                .map(e => ({date: e.date, milestone: e.short_description, chapter: e.ch_num}))
-                .sort((a, b) => {
-                    // Sort by chapter number, then by date/time
-                    if (a.chapter !== b.chapter) return a.chapter - b.chapter;
-                    return new Date(a.date) - new Date(b.date);
-                });
-
-
             // 3. Populate the Single Item View
             document.getElementById("item-title").innerText = item_data_full.full_name;
 
@@ -181,14 +221,22 @@
                 <div class="row">
                     <div class="col-md-4 text-center">
                         <img src="https://epcarraway.blob.core.windows.net/dnd/item/${item_key}.png" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.png?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
-                        <h4 class="mb-3">${item_data_full.name} (${item_data_full.rarity})</h4>
+                        <h4 class="mb-3">${item_data_full.name} (${item_data_full.rarity === "Unknown" ? "Unknown Rarity" : item_data_full.rarity})</h4>
+                        <div>
+                            <l id="item-aliases" text->
+                                 ${Array.isArray(item_data_full.aliases) && item_data_full.aliases.length > 0 ? 
+                                    item_data_full.aliases.map(a => `AKA <l>${a}</l>`).join(' ') :
+                                    '<li>Unknown</li>'}
+                            </l>
+                        </div>
                     </div>
                     <div class="col-md-8">
                         <h2>Description & Lore</h2>
                         <p>${item_data_full.description}</p>
+                        <p id="item-humorous-desc">${item_data_full.humorous_description}</p>
                         <hr>
                         <p><strong>Category:</strong> ${Array.isArray(item_data_full.category) ? item_data_full.category.join(', ') : item_data_full.category}</p>
-                        <p><strong>Appears In:</strong> Chapter ${item_data_full.first_ch_num} to Chapter ${item_data_full.last_ch_num}</p>
+                        <p><strong>Appears In:</strong> Chapter <a href="chapters.html?c=${item_data_full.first_ch_num}">${item_data_full.first_ch_num}</a>${item_data_full.first_ch_num === item_data_full.last_ch_num ? '' : ` to Chapter <a href="chapters.html?c=${item_data_full.last_ch_num}">${item_data_full.last_ch_num}</a>`}</p>
                         <p><strong>Characteristics:</strong> ${Array.isArray(item_data_full.characteristics) ? item_data_full.characteristics.join(', ') : 'N/A'}</p>
                         <hr>
                         <h4>Abilities</h4>
@@ -202,7 +250,7 @@
                 <hr>
                 <h2>Chronology & Notable Sightings</h2>
                 <ul class="list-group">
-                    ${item_data_full.item_chronology.map(e => 
+                    ${item_data_full.chronology.map(e => 
                         `<li class="list-group-item"><strong>${e.date}:</strong> ${e.milestone}</li>`
                     ).join('')}
                 </ul>
