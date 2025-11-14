@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="favicon.ico">
+    <meta name="description" content="Waterdeep Project - Locations">
+    <meta name="author" content="Evan Carraway">
+    <title>Waterdeep - Locations</title>
+    <style>
+        /* Embedded CSS for Styling */
+        #location-humorous-desc {
+            font-style: italic;
+            padding: 15px;
+            border-left: 4px solid #14110d;
+            margin: 20px 0;
+            /* background-color: #fef8f0; */
+            quotes: "“" "”";
+        }
+        #location-humorous-desc::before {
+            content: open-quote;
+            font-size: 1.5em;
+            font-weight: bold;
+            /* color: #d2b48c; */
+        }
+        #location-humorous-desc::after {
+            content: close-quote;
+            font-size: 1.5em;
+            font-weight: bold;
+            /* color: #d2b48c; */
+        }
+        #location-aliases {
+            font-size: 0.9em;
+            font-style: italic;
+            /* color: #d2b48c; */
+        }
+    </style>
+    <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="css/sticky-footer-navbar.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>  
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+  </head>
+
+  <body  style="width:100%">
+    <div id="header"></div>
+
+    <main style="width:100%">
+      <div hidden id="location-container"  class="container" style="width:100%; padding-top:60px;">
+        <h1 id="location-title"  class="container" style="text-align:center;padding-bottom:30px;vertical-align:middle"></h1>
+        <div id="location-arrows-top"  class="container" style="padding-top:10px;padding-bottom:30px;">
+          <div style="text-align: center;">
+            <a href="locations.html" class="btn btn-primary">← Back to All Locations</a>
+          </div>
+        </div>
+        <div id="location-body" class="p-3 border rounded shadow-sm bg-light" style="width:100%">
+        </div>
+        <div id="location-arrows-bottom"  class="container" style="padding-top:30px;padding-bottom:30px;">
+          <div style="text-align: center;">
+            <a href="locations.html" class="btn btn-primary">← Back to All Locations</a>
+          </div>
+        </div>
+      </div>
+      
+      <div hidden id="table-container" class="container" style="padding-top:60px;">  
+        <h1 class="text-center" style="padding-bottom:30px;">All Locations</h1>
+        <table id="data-table" class="display" style="width:100%">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>chapter</th>
+              <th>Name</th>
+              <th>Full Name</th>
+              <th>Leader</th>
+              <th>Category</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+        </table>
+      </div>  
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-white">
+      <div class="container-fluid">
+        <span class="text-muted">© Carraway 2025</span>
+      </div>
+    </footer>
+    
+    <script src="js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="js/jquery-3.6.0.js"></script> 
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	  <script>
+      $(function(){
+        $("#header").load("header.html",  function(){
+          document.getElementById("locations").classList.add('active'); // Assuming an 'locations' link in header.html
+        });
+      });
+    </script>
+    <script>
+       $(document).ready(function() {
+        var searchParams = new URLSearchParams(window.location.search);
+        var location_key = searchParams.has("i") ? searchParams.get("i") : 0;
+        
+        google.charts.load('current',{'packages':['corechart','table']});
+        google.charts.setOnLoadCallback(drawAllSheets);
+
+        async function fetchItemData(filename) {
+            // Placeholder for a full fetch function. In a real environment, this URL would be updated.
+            const res = await fetch(filename);
+            return await res.json();
+        }
+
+        async function drawAllSheets() {
+          let location_data_full = [];
+          
+          // 1. Fetch the main location list
+          const locations_short = await fetchItemData('https://epcarraway.blob.core.windows.net/dnd/location/locations_short.json');
+
+          if (location_key === 0) {
+            // --- Table View Mode ---
+            document.getElementById("table-container").hidden = false;
+            let unique_locations = new Map();
+
+            // Aggregate unique locations and find the best single description
+            locations_short.forEach(location => {
+                // If this is the first time seeing the location_key, or this entry is "rarer"
+                if (!unique_locations.has(location.location_key) || (location.leader > unique_locations.get(location.location_key).leader)) {
+                    unique_locations.set(location.location_key, location);
+                }
+            });
+
+            let tableRows = [];
+            unique_locations.forEach((location, key) => {
+                let chapterNumber = location.ch_num;
+                let chapterNumberUrl = '<a href="chapters.html?c=' + chapterNumber + '">' + chapterNumber + '</a>'
+                let locationUrl = '<a href="locations.html?i=' + key.replace(",", "") + '">' + location.name + '</a>';
+                let thumbnailUrl = '<a href="locations.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/location/' + key + '-200.png" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.png?text=No+Image\';" style="width:80px"></a>';
+                let categoryDisplay = Array.isArray(location.category) ? location.category.join(', ') : location.category;
+
+                tableRows.push([
+                    thumbnailUrl,
+                    chapterNumberUrl,
+                    locationUrl,
+                    location.name,
+                    location.region,
+                    categoryDisplay,
+                    location.short_description
+                ]);
+            });
+
+            $('#data-table').DataTable( {
+              paging: true,
+              pageLength: 100,
+              order: [[1, 'desc']],
+              data: tableRows,
+              columns: [
+                { "title": "Image" },
+                { 
+                  "title": "chapter",
+                  "className": 'dt-body-center',
+                  "render": function(title, type, row, meta){
+                    if(type === 'display'){
+                        title = title;
+                    }
+                    
+                    return title;
+                  }
+                },
+                { "title": "Name", "className": 'dt-body-left' },
+                { "title": "Full Name" },
+                { "title": "Region" }, 
+                { "title": "Category" }, 
+                { "title": "Short Description" }
+              ]
+            });
+            
+          } else {
+            // --- Single Item View Mode ---
+            document.getElementById("location-container").hidden = false;
+            
+            // 2. Load the specific location's full detail JSON (e.g., holyavenger.json)
+            try {
+                location_data_full = await fetchItemData('https://epcarraway.blob.core.windows.net/dnd/location/' + location_key + '.json');
+                if (location_data_full && location_data_full.location_chronology) {
+                // 2. Assign the value to the new key
+                location_data_full.chronology = location_data_full.location_chronology;
+                // 3. Delete the old key
+                delete location_data_full.location_chronology;
+              }
+            } catch (e) {
+                // Fallback to a single synthesized entry if a dedicated JSON file doesn't exist
+                const specific_entries = locations_short.filter(i => i.location_key === location_key);
+                if (specific_entries.length > 0) {
+                    // Just pick the entry with the highest leader as the "main" one for the title
+                    specific_entries.sort((a, b) => b.leader - a.leader);
+                    const main_entry = specific_entries[0];
+                    location_data_full.chronology ??= location_data_full.location_chronology;
+                    location_data_full = {
+                        name: main_entry.name,
+                        region: main_entry.region,
+                        category: main_entry.category,
+                        description: main_entry.short_description,
+                        characters: [], // Cannot be determined from short data
+                        characteristics: [], // Cannot be determined from short data
+                        chronology: location_data_full.chronology, // Built from all short entries below
+                        location_chronology: location_data_full.chronology, // Built from all short entries below
+                        aliases: [], // Cannot be determined from short data
+                        first_ch_num: Math.min(...specific_entries.map(e => e.ch_num)),
+                        last_ch_num: Math.max(...specific_entries.map(e => e.ch_num)),
+                    };
+                } else {
+                    document.getElementById("location-title").innerText = "Item Not Found";
+                    return;
+                }
+            }
+            // 3. Populate the Single Item View
+            document.getElementById("location-title").innerText = location_data_full.name;
+
+            let htmlContent = `
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <img src="https://epcarraway.blob.core.windows.net/dnd/location/${location_key}.png" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.png?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                        <h4 class="mb-3">${location_data_full.name}</h4>
+                        <div>
+                            <l id="location-aliases" text->
+                                 ${Array.isArray(location_data_full.aliases) && location_data_full.aliases.length > 0 ? 
+                                    location_data_full.aliases.map(a => `AKA <l>${a}</l>`).join(' ') :
+                                    ''}
+                            </l>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h2>Description & Lore</h2>
+                        <p>${location_data_full.description}</p>
+                        <p id="location-humorous-desc">${location_data_full.humorous_description}</p>
+                        <hr>
+                        <p><strong>Leader:</strong> ${Array.isArray(location_data_full.leader ?? location_data_full.leaders) ? (location_data_full.leader ?? location_data_full.leaders).join(', ') : (location_data_full.leader || 'Unknown Leader')}</p>
+                        <p><strong>Category:</strong> ${Array.isArray(location_data_full.category ?? location_data_full.categories) ? (location_data_full.category ?? location_data_full.categories).join(', ') : (location_data_full.category ?? location_data_full.categories)}</p>
+                        <p><strong>Appears In:</strong> Chapter <a href="chapters.html?c=${location_data_full.first_ch_num ?? location_data_full.first_referenced_chapter}">${location_data_full.first_ch_num ?? location_data_full.first_referenced_chapter}</a>${location_data_full.first_ch_num ?? location_data_full.first_referenced_chapter === location_data_full.last_ch_num ?? location_data_full.last_referenced_chapter ? '' : ` to Chapter <a href="chapters.html?c=${location_data_full.last_ch_num ?? location_data_full.last_referenced_chapter}">${location_data_full.last_ch_num ?? location_data_full.last_referenced_chapter}</a>`}</p>
+                        <p><strong>Region:</strong> ${Array.isArray(location_data_full.region) ? location_data_full.region.join(', ') : (location_data_full.region || '')}</p>
+                        <hr>
+                        <h4>Characters</h4>
+                        <ul>
+                            ${Array.isArray(location_data_full.characters) && location_data_full.characters.length > 0 ? 
+                                location_data_full.characters.map(a => `<li>${a.name || a}</li>`).join('') :
+                                '<li>Unknown</li>'}
+                        </ul>
+                    </div>
+                </div>
+                <hr>
+                <h2>Chronology & Notable Sightings</h2>
+                <ul class="list-group">
+                    ${location_data_full.chronology.map(e => 
+                        `<li class="list-group-location"><strong>${e.date}:</strong> ${e.milestone || e.event}</li>`
+                    ).join('')}
+                </ul>
+            `;
+            
+            document.getElementById("location-body").innerHTML = htmlContent;
+          }
+        }
+      });
+     </script> 
+  </body>
+</html>
