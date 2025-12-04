@@ -249,11 +249,13 @@
                 </div>
                 <hr>
                 <h2>Chronology & Notable Sightings</h2>
-                <ul class="list-group">
-                    ${location_data_full.chronology.map(e => 
-                        `<li class="list-group-location"><strong>${e.date}:</strong> ${e.milestone || e.event}</li>`
-                    ).join('')}
-                </ul>
+                ${ (location_data_full.chronology && location_data_full.chronology.length > 0) ? 
+                  `<ul class="list-group">
+                      ${location_data_full.chronology.map(e => 
+                          `<li class="list-group-location"><strong>${e.date}:</strong> ${e.milestone || e.event}</li>`
+                      ).join('')}
+                  </ul>` 
+              : '' }
             `;
             
             document.getElementById("location-body").innerHTML = htmlContent;
