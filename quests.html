@@ -5,164 +5,262 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="favicon.ico">
-    <meta name="description" content="Waterdeep Project">
+    <meta name="description" content="Waterdeep Project - Quests">
     <meta name="author" content="Evan Carraway">
-    <title>Waterdeep</title>
-    <!-- Bootstrap core CSS -->
+    <title>Waterdeep - Quests</title>
+    <style>
+        /* Embedded CSS for Styling */
+        #quest-humorous-desc {
+            font-style: italic;
+            padding: 15px;
+            border-left: 4px solid #14110d;
+            margin: 20px 0;
+            /* background-color: #fef8f0; */
+            quotes: "“" "”";
+        }
+        #quest-humorous-desc::before {
+            content: open-quote;
+            font-size: 1.5em;
+            font-weight: bold;
+            /* color: #d2b48c; */
+        }
+        #quest-humorous-desc::after {
+            content: close-quote;
+            font-size: 1.5em;
+            font-weight: bold;
+            /* color: #d2b48c; */
+        }
+        #quest-aliases {
+            font-size: 0.9em;
+            font-style: italic;
+            /* color: #d2b48c; */
+        }
+    </style>
     <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link href="css/sticky-footer-navbar.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>  
-    <!-- Load the AJAX API aka Google API  -->
     <script src="https://www.gstatic.com/charts/loader.js"></script>
   </head>
 
-  <body class="d-flex flex-column h-100">
-    <!-- Header template -->
+  <body  style="width:100%">
     <div id="header"></div>
 
-    <!-- Begin page content -->
-    <main class="flex-shrink-0">
-      <div hidden id="quest-container" class="container">
-        <h1 id="quest-title" style="text-align:center;padding-top:50px;vertical-align:middle"></h1>
-        <!-- <div id="quest-location" style="padding-top:10px;"></div> -->
-        <div id="quest-arrows-top" style="padding-top:10px;padding-bottom:30px;">
-          <div id="quest-arrows-left-top" style="text-align: left; float: left"></div>
-          <div id="quest-arrows-right-top" style="text-align: right; float: right"></div>
+    <main style="width:100%">
+      <div hidden id="quest-container"  class="container" style="width:100%; padding-top:60px;">
+        <h1 id="quest-title"  class="container" style="text-align:center;padding-bottom:30px;vertical-align:middle"></h1>
+        <div id="quest-arrows-top"  class="container" style="padding-top:10px;padding-bottom:30px;">
+          <div style="text-align: center;">
+            <a href="quests.html" class="btn btn-primary">← Back to All Quests</a>
+          </div>
         </div>
-        <div id="quest-body" style="padding-top:10px;"></div>
-        <div id="quest-arrows-bottom" style="padding-top:10px;padding-bottom:30px;">
-          <div id="quest-arrows-left-bottom" style="text-align: left; float: left"></div>
-          <div id="quest-arrows-right-bottom" style="text-align: right; float: right"></div>
+        <div id="quest-body" class="p-3 border rounded shadow-sm bg-light" style="width:100%">
+        </div>
+        <div id="quest-arrows-bottom"  class="container" style="padding-top:30px;padding-bottom:30px;">
+          <div style="text-align: center;">
+            <a href="quests.html" class="btn btn-primary">← Back to All Quests</a>
+          </div>
         </div>
       </div>
-      <div hidden id="table-container" class="container">  
+      
+      <div hidden id="table-container" class="container" style="padding-top:60px;">  
+        <h1 class="text-center" style="padding-bottom:30px;">All Quests</h1>
         <table id="data-table" class="display" style="width:100%">
           <thead>
             <tr>
-              <th>name</th>
-              <th>description</th>
-              <th>type</th>
-              <th>body</th>
+              <th>Image</th>
+              <th>chapter</th>
+              <th>Name</th>
+              <th>Full Name</th>
+              <th>Originator</th>
+              <th>Category</th>
+              <th>Description</th>
             </tr>
           </thead>
         </table>
       </div>  
     </main>
 
-    <!-- Footer Area -->
     <footer class="footer mt-auto py-3 bg-white">
       <div class="container-fluid">
-        <span class="text-muted">© Carraway 2024</span>
+        <span class="text-muted">© Carraway 2025</span>
       </div>
     </footer>
     
-    <!-- Bootstrap core JavaScript-->
     <script src="js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <script src="js/jquery-3.6.0.js"></script> 
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 	  <script>
       $(function(){
         $("#header").load("header.html",  function(){
-          document.getElementById("quests").classList.add('active');
+          document.getElementById("quests").classList.add('active'); // Assuming an 'quests' link in header.html
         });
       });
     </script>
     <script>
-      // Creates a DataTable from source JSON
        $(document).ready(function() {
         var searchParams = new URLSearchParams(window.location.search);
-        var quest = 0
-        if (searchParams.has("c")) {
-          quest = searchParams.get("c")
-        };
-        // Load the visualization API and the corechart packages
+        var quest_key = searchParams.has("i") ? searchParams.get("i") : 0;
+        
         google.charts.load('current',{'packages':['corechart','table']});
-        // Set callback when the google visualization API is loaded
         google.charts.setOnLoadCallback(drawAllSheets);
-        function drawAllSheets() {
-          var tableRows = Array();
-          console.log(quest);
-          if (quest==0) {
+
+        async function fetchItemData(filename) {
+            // Placeholder for a full fetch function. In a real environment, this URL would be updated.
+            const res = await fetch(filename);
+            return await res.json();
+        }
+
+        async function drawAllSheets() {
+          let quest_data_full = [];
+          
+          // 1. Fetch the main quest list
+          const quests_short = await fetchItemData('https://epcarraway.blob.core.windows.net/dnd/quest/quests_short.json');
+
+          if (quest_key === 0) {
+            // --- Table View Mode ---
             document.getElementById("table-container").hidden = false;
-            var questQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=quests&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, D');
-            questQuery = new google.visualization.Query(questQueryString);
-            questQuery.send(questChartFunction);
-            function questChartFunction (questResponse) {
-                // Get and data
-                var questData = questResponse.getDataTable();
-                for (i=0; i<questData.getNumberOfRows(); i++) {
-                  var questNumber = questData.getValue(i, 0);
-                  var questName = questData.getValue(i, 1);
-                  var questUrl = '<a href="quests.html?c=' + questNumber + '">' + questName + '</a>'
-                  var questLocation = questData.getValue(i, 2);
-                  var questBody = questData.getValue(i, 3);
-                  tableRows = tableRows.concat([[questNumber, questUrl, questLocation, questBody]]);
-                };
-                $('#data-table').DataTable( {
-                  paging: false,
-                  order: [[0, 'desc']],
-                  data: tableRows,
-                  "columns": [
-                      { 
-                        "title": "quest",
-                        "render": function(title, type, row, meta){
-                          if(type === 'display'){
-                              title = title;
-                          }
-                          
-                          return title;
-                        }
-                    },
-                    { "title": "title" },
-                    { "title": "location" }, 
-                    { "title": "body",
-                      "visible": false,
-                      "searchable": true }
-                  ]
-                } );
-            };
-          } else {
-            document.getElementById("quest-container").hidden = false;
-            var questMaxQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=quests&headers=1&tq=' + encodeURIComponent('SELECT A ORDER BY A DESC LIMIT 1');
-            console.log(questMaxQueryString);
-            questMaxQuery = new google.visualization.Query(questMaxQueryString);
-            questMaxQuery.send(questChartFunctionMax);
-            function questChartFunctionMax (questResponse) {
-                // Get and data
-                var questData = questResponse.getDataTable();
-                var questNumberLast = questData.getValue(0, 0);
-                console.log(questNumberLast);
-                var questQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=quests&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, D WHERE A=' + quest);
-                console.log(questQueryString);
-                questQuery = new google.visualization.Query(questQueryString);
-                questQuery.send(questChartFunction);
-                function questChartFunction (questResponse) {
-                    // Get and data
-                    var questData = questResponse.getDataTable();
-                    var questNumber = questData.getValue(0, 0);
-                    var questNumberPrev = Math.max(questNumber - 1, 1);
-                    var questName = questData.getValue(0, 1);
-                    var questLocation = questData.getValue(0, 2);
-                    var questBody = questData.getValue(0, 3);
+            let unique_quests = new Map();
+
+            // Aggregate unique quests and find the best single description
+            quests_short.forEach(quest => {
+                // If this is the first time seeing the quest_key, or this entry is "rarer"
+                if (!unique_quests.has(quest.quest_key) || (quest.originator > unique_quests.get(quest.quest_key).originator)) {
+                    unique_quests.set(quest.quest_key, quest);
+                }
+            });
+
+            let tableRows = [];
+            unique_quests.forEach((quest, key) => {
+                let chapterNumber = quest.ch_num;
+                let chapterNumberUrl = '<a href="chapters.html?c=' + chapterNumber + '">' + chapterNumber + '</a>'
+                let questUrl = '<a href="quests.html?i=' + key + '">' + quest.name + '</a>';
+                let thumbnailUrl = '<a href="quests.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/quest/' + key + '-200.png" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.png?text=No+Image\';" style="width:80px"></a>';
+                let categoryDisplay = Array.isArray(quest.category) ? quest.category.join(', ') : quest.category;
+
+                tableRows.push([
+                    thumbnailUrl,
+                    chapterNumberUrl,
+                    questUrl,
+                    quest.name,
+                    quest.originator,
+                    categoryDisplay,
+                    quest.short_description
+                ]);
+            });
+
+            $('#data-table').DataTable( {
+              paging: true,
+              pageLength: 100,
+              order: [[1, 'desc']],
+              data: tableRows,
+              columns: [
+                { "title": "Image" },
+                { 
+                  "title": "chapter",
+                  "className": 'dt-body-center',
+                  "render": function(title, type, row, meta){
+                    if(type === 'display'){
+                        title = title;
+                    }
                     
-                    var questNumberNext = Math.min(questNumber + 1, questNumberLast);
-                    console.log(questNumber, questName);
-                    document.getElementById("quest-title").innerText = 'Quest ' + questNumber + ': ' + questName;
-                    '<a href="quests.html?c=' + questNumber + '">' + questName + '</a>'
-                    document.getElementById("quest-arrows-left-top").innerHTML = ' / <a href="quests.html?c=' + 1 + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>First</a>';
-                    document.getElementById("quest-arrows-left-top").innerHTML += ' / <a href="quests.html?c=' + questNumberPrev + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>Previous</a> / ';
-                    document.getElementById("quest-arrows-right-top").innerHTML = ' / <a href="quests.html?c=' + questNumberNext + '" class="text-decoration-none">Next<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a>';
-                    document.getElementById("quest-arrows-right-top").innerHTML += ' / <a href="quests.html?c=' + questNumberLast + '" class="text-decoration-none">Last<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a> / ';
-                    document.getElementById("quest-arrows-left-bottom").innerHTML = ' / <a href="quests.html?c=' + 1 + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>First</a>';
-                    document.getElementById("quest-arrows-left-bottom").innerHTML += ' / <a href="quests.html?c=' + questNumberPrev + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>Previous</a> / ';
-                    document.getElementById("quest-arrows-right-bottom").innerHTML = ' / <a href="quests.html?c=' + questNumberNext + '" class="text-decoration-none">Next<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a>';
-                    document.getElementById("quest-arrows-right-bottom").innerHTML += ' / <a href="quests.html?c=' + questNumberLast + '" class="text-decoration-none">Last<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a> / ';
-                    document.getElementById("quest-body").innerHTML = questBody;
-                };
-            };
+                    return title;
+                  }
+                },
+                { "title": "Name", "className": 'dt-body-left' },
+                { "title": "Full Name" },
+                { "title": "Originator" }, 
+                { "title": "Category" }, 
+                { "title": "Short Description" }
+              ]
+            });
+            
+          } else {
+            // --- Single Item View Mode ---
+            document.getElementById("quest-container").hidden = false;
+            
+            // 2. Load the specific quest's full detail JSON (e.g., holyavenger.json)
+            try {
+                quest_data_full = await fetchItemData('https://epcarraway.blob.core.windows.net/dnd/quest/' + quest_key + '.json');
+                if (quest_data_full && quest_data_full.quest_chronology) {
+                // 2. Assign the value to the new key
+                quest_data_full.chronology = quest_data_full.quest_chronology;
+                // 3. Delete the old key
+                delete quest_data_full.quest_chronology;
+              }
+            } catch (e) {
+                // Fallback to a single synthesized entry if a dedicated JSON file doesn't exist
+                const specific_entries = quests_short.filter(i => i.quest_key === quest_key);
+                if (specific_entries.length > 0) {
+                    // Just pick the entry with the highest originator as the "main" one for the title
+                    specific_entries.sort((a, b) => b.originator - a.originator);
+                    const main_entry = specific_entries[0];
+                    quest_data_full.chronology ??= quest_data_full.quest_chronology;
+                    quest_data_full = {
+                        name: main_entry.name,
+                        name: main_entry.name,
+                        originator: main_entry.quest_originator,
+                        category: main_entry.category,
+                        description: main_entry.short_description,
+                        characters: [], // Cannot be determined from short data
+                        characteristics: [], // Cannot be determined from short data
+                        chronology: quest_data_full.chronology, // Built from all short entries below
+                        quest_chronology: quest_data_full.chronology, // Built from all short entries below
+                        aliases: [], // Cannot be determined from short data
+                        first_ch_num: Math.min(...specific_entries.map(e => e.ch_num)),
+                        last_ch_num: Math.max(...specific_entries.map(e => e.ch_num)),
+                    };
+                } else {
+                    document.getElementById("quest-title").innerText = "Item Not Found";
+                    return;
+                }
+            }
+            // 3. Populate the Single Item View
+            document.getElementById("quest-title").innerText = quest_data_full.name;
+
+            let htmlContent = `
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <img src="https://epcarraway.blob.core.windows.net/dnd/quest/${quest_key}.png" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.png?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                        <h4 class="mb-3">${quest_data_full.name}</h4>
+                        <div>
+                            <l id="quest-aliases" text->
+                                 ${Array.isArray(quest_data_full.aliases) && quest_data_full.aliases.length > 0 ? 
+                                    quest_data_full.aliases.map(a => `AKA <l>${a}</l>`).join(' ') :
+                                    ''}
+                            </l>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h2>Description & Lore</h2>
+                        <p>${quest_data_full.background}</p>
+                        <p id="quest-humorous-desc">${quest_data_full.humorous_description}</p>
+                        <hr>
+                        <p><strong>Originator:</strong> ${Array.isArray(quest_data_full.quest_originator ?? quest_data_full.quest_originators) ? (quest_data_full.quest_originator ?? quest_data_full.quest_originators).join(', ') : (quest_data_full.quest_originator || 'Unknown Originator')}</p>
+                        <p><strong>Category:</strong> ${Array.isArray(quest_data_full.category ?? quest_data_full.categories) ? (quest_data_full.category ?? quest_data_full.categories).join(', ') : (quest_data_full.category ?? quest_data_full.categories)}</p>
+                        <p><strong>Appears In:</strong> Chapter <a href="chapters.html?c=${quest_data_full.first_ch_num}">${quest_data_full.first_ch_num}</a>${quest_data_full.first_ch_num === quest_data_full.last_ch_num ? '' : ` to Chapter <a href="chapters.html?c=${quest_data_full.last_ch_num}">${quest_data_full.last_ch_num}</a>`}</p>
+                        <p><strong>Locations:</strong> ${Array.isArray(quest_data_full.locations) ? quest_data_full.locations.join(', ') : (quest_data_full.locations || '')}</p>
+                        <hr>
+                        <h4>Characters</h4>
+                        <ul>
+                            ${Array.isArray(quest_data_full.characters) && quest_data_full.characters.length > 0 ? 
+                                quest_data_full.characters.map(a => `<li>${a.name || a}</li>`).join('') :
+                                '<li>Unknown</li>'}
+                        </ul>
+                    </div>
+                </div>
+                <hr>
+                <h2>Chronology & Notable Sightings</h2>
+                <ul class="list-group">
+                    ${quest_data_full.chronology.map(e => 
+                        `<li class="list-group-quest"><strong>${e.date}:</strong> ${e.milestone || e.event}</li>`
+                    ).join('')}
+                </ul>
+            `;
+            
+            document.getElementById("quest-body").innerHTML = htmlContent;
           }
-        };
-      } );
+        }
+      });
      </script> 
   </body>
 </html>
