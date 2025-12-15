@@ -200,7 +200,7 @@
                         name: main_entry.name,
                         leader: main_entry.leader,
                         category: main_entry.category,
-                        description: main_entry.short_description,
+                        description: organization_data_full.background,
                         members: [], // Cannot be determined from short data
                         characteristics: [], // Cannot be determined from short data
                         chronology: organization_data_full.chronology, // Built from all short entries below
@@ -232,13 +232,13 @@
                     </div>
                     <div class="col-md-8">
                         <h2>Description & Lore</h2>
-                        <p>${organization_data_full.description}</p>
+                        <p>${organization_data_full.background ?? organization_data_full.description}</p>
                         <p id="organization-humorous-desc">${organization_data_full.humorous_description}</p>
                         <hr>
                         <p><strong>Leader:</strong> ${Array.isArray(organization_data_full.leader ?? organization_data_full.leaders) ? (organization_data_full.leader ?? organization_data_full.leaders).join(', ') : (organization_data_full.leader || 'Unknown Leader')}</p>
                         <p><strong>Category:</strong> ${Array.isArray(organization_data_full.category ?? organization_data_full.categories) ? (organization_data_full.category ?? organization_data_full.categories).join(', ') : (organization_data_full.category ?? organization_data_full.categories)}</p>
                         <p><strong>Appears In:</strong> Chapter <a href="chapters.html?c=${organization_data_full.first_ch_num}">${organization_data_full.first_ch_num}</a>${organization_data_full.first_ch_num === organization_data_full.last_ch_num ? '' : ` to Chapter <a href="chapters.html?c=${organization_data_full.last_ch_num}">${organization_data_full.last_ch_num}</a>`}</p>
-                        <p><strong>Location:</strong> ${Array.isArray(organization_data_full.location) ? organization_data_full.location.join(', ') : (organization_data_full.location || '')}</p>
+                        <p><strong>Location:</strong> ${Array.isArray(organization_data_full.locations) ? organization_data_full.locations.join(', ') : (organization_data_full.locations || '')}</p>
                         <hr>
                         <h4>Members</h4>
                         <ul>
