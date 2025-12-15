@@ -134,7 +134,7 @@
                 let chapterNumber = organization.ch_num;
                 let chapterNumberUrl = '<a href="chapters.html?c=' + chapterNumber + '">' + chapterNumber + '</a>'
                 let organizationUrl = '<a href="organizations.html?i=' + key + '">' + organization.name + '</a>';
-                let thumbnailUrl = '<a href="organizations.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/org/' + key + '-200.png" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.png?text=No+Image\';" style="width:80px"></a>';
+                let thumbnailUrl = '<a href="organizations.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/org/' + key + '-200.jpg" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.jpg?text=No+Image\';" style="width:80px"></a>';
                 let categoryDisplay = Array.isArray(organization.category) ? organization.category.join(', ') : organization.category;
 
                 tableRows.push([
@@ -220,7 +220,7 @@
             let htmlContent = `
                 <div class="row">
                     <div class="col-md-4 text-center">
-                        <img src="https://epcarraway.blob.core.windows.net/dnd/org/${org_key}.png" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.png?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                        <img src="https://epcarraway.blob.core.windows.net/dnd/org/${org_key}.jpg" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.jpg?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
                         <h4 class="mb-3">${organization_data_full.name}</h4>
                         <div>
                             <l id="organization-aliases" text->
