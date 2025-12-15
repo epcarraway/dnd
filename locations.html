@@ -134,7 +134,7 @@
                 let chapterNumber = location.ch_num;
                 let chapterNumberUrl = '<a href="chapters.html?c=' + chapterNumber + '">' + chapterNumber + '</a>'
                 let locationUrl = '<a href="locations.html?i=' + key.replace(",", "") + '">' + location.name + '</a>';
-                let thumbnailUrl = '<a href="locations.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/location/' + key + '-200.png" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.png?text=No+Image\';" style="width:80px"></a>';
+                let thumbnailUrl = '<a href="locations.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/location/' + key + '-200.jpg" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.jpg?text=No+Image\';" style="width:80px"></a>';
                 let categoryDisplay = Array.isArray(location.category) ? location.category.join(', ') : location.category;
 
                 tableRows.push([
@@ -219,7 +219,7 @@
             let htmlContent = `
                 <div class="row">
                     <div class="col-md-4 text-center">
-                        <img src="https://epcarraway.blob.core.windows.net/dnd/location/${location_key}.png" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.png?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                        <img src="https://epcarraway.blob.core.windows.net/dnd/location/${location_key}.jpg" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.jpg?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
                         <h4 class="mb-3">${location_data_full.name}</h4>
                         <div>
                             <l id="location-aliases" text->
@@ -231,7 +231,7 @@
                     </div>
                     <div class="col-md-8">
                         <h2>Description & Lore</h2>
-                        <p>${location_data_full.description}</p>
+                        <p>${location_data_full.description ?? location_data_full.background}</p>
                         <p id="location-humorous-desc">${location_data_full.humorous_description}</p>
                         <hr>
                         <p><strong>Leader:</strong> ${Array.isArray(location_data_full.leader ?? location_data_full.leaders) ? (location_data_full.leader ?? location_data_full.leaders).join(', ') : (location_data_full.leader || 'Unknown Leader')}</p>
@@ -241,8 +241,8 @@
                         <hr>
                         <h4>Characters</h4>
                         <ul>
-                            ${Array.isArray(location_data_full.characters) && location_data_full.characters.length > 0 ? 
-                                location_data_full.characters.map(a => `<li>${a.name || a}</li>`).join('') :
+                            ${Array.isArray(location_data_full.characters ?? location_data_full.creatures) && (location_data_full.characters.length ?? location_data_full.creatures) > 0 ? 
+                                (location_data_full.characters ?? location_data_full.creatures).map(a => `<li>${a.name || a}</li>`).join('') :
                                 '<li>Unknown</li>'}
                         </ul>
                     </div>
