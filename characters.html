@@ -376,7 +376,7 @@
                         let rName = (r || "").trim();
                         // Check if organization name exists in orgLinkMap
                         if (orgLinkMap.has(rName)) {
-                            return `<a href="orgs.html?i=${orgLinkMap.get(rName)}">${rName}</a>`;
+                            return `<a href="organizations.html?i=${orgLinkMap.get(rName)}">${rName}</a>`;
                         }
                         return rName;
                     }).join(', ');
@@ -391,10 +391,10 @@
                         console.log(rName)
                         // Check if ally name exists in charLinkMap
                         if (charLinkMap.has(rName)) {
-                            return `<li><a href="characters.html?i=${charLinkMap.get(rName)}">${rName}</a></li>`;
+                            return `<li><a href="characters.html?c=${charLinkMap.get(rName)}">${rName}</a></li>`;
                         }
                         if (orgLinkMap.has(rName)) {
-                            return `<li><a href="orgs.html?i=${orgLinkMap.get(rName)}">${rName}</a></li>`;
+                            return `<li><a href="organizations.html?i=${orgLinkMap.get(rName)}">${rName}</a></li>`;
                         }
                         return `<li>${rName}</li>`;
                     }).join('');
@@ -408,10 +408,10 @@
                         let rName = (r || "").trim().replace("Delnis Bricstane","Delnis Bricstan").replace(/ \(.*/,"");
                         // Check if enemy name exists in charLinkMap
                         if (charLinkMap.has(rName)) {
-                            return `<li><a href="characters.html?i=${charLinkMap.get(rName)}">${rName}</a></li>`;
+                            return `<li><a href="characters.html?c=${charLinkMap.get(rName)}">${rName}</a></li>`;
                         }
                         if (orgLinkMap.has(rName)) {
-                            return `<li><a href="orgs.html?i=${orgLinkMap.get(rName)}">${rName}</a></li>`;
+                            return `<li><a href="organizations.html?i=${orgLinkMap.get(rName)}">${rName}</a></li>`;
                         }
                         return `<li>${rName}</li>`;
                     }).join('');
@@ -449,7 +449,7 @@
                     <div class="col-md-8">
                         <h2>Description & Lore</h2>
                         <p>${character_data_full.description}</p>
-                        <p id="character-humorous-desc">${character_data_full.humorous_description}</p>
+                        <p id="character-humorous-desc">"${character_data_full.humorous_description}"</p>
                         <hr>
                         <p><strong>Category:</strong> ${Array.isArray(character_data_full.category) ? character_data_full.category.join(', ') : character_data_full.category || character_data_full.race}</p>
                         <p><strong>Occupation:</strong> ${Array.isArray(character_data_full.occupation) ? character_data_full.occupation.join(', ') : character_data_full.occupation || character_data_full.job}</p>
