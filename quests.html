@@ -114,7 +114,46 @@
           let quest_data_full = [];
           
           // 1. Fetch the main quest list
-          const quests_short = await fetchItemData('https://epcarraway.blob.core.windows.net/dnd/quest/quests_short.json');
+          const [quests_short, locations_short, items_short, characters_short] = await Promise.all([
+              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/quest/quests_short.json'),
+              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/location/locations_short.json'),
+              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/item/items_short.json'),
+              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/chars.json')
+          ]);
+          
+          // 2. Build Character Lookup Map (Name/Full Name -> name_key)
+          // We use a Map to handle case-insensitive matching if needed, but direct string matching is usually safer for generated data.
+          // This ensures if "Johnny 5" appears in the location list, we know his key is "johnny5"
+          let charLinkMap = new Map();
+          if (Array.isArray(characters_short)) {
+              characters_short.forEach(c => {
+                  if (c.name && c.name_key) charLinkMap.set(c.name.trim(), c.name_key);
+                  if (c.full_name && c.name_key) charLinkMap.set(c.full_name.trim(), c.name_key);
+              });
+          }
+
+          // B. Location Map (Name -> location_key)
+          let locLinkMap = new Map();
+          if (Array.isArray(locations_short)) {
+              locations_short.forEach(l => {
+                  if (l.name && l.location_key) {
+                      // We replace commas to match the URL format used in the Table View
+                      locLinkMap.set(l.name.trim(), l.location_key.replace(",", ""));
+                  }
+              });
+          }
+
+          // C. Item Map (Name -> item_key)
+          let itemLinkMap = new Map();
+          if (Array.isArray(items_short)) {
+              items_short.forEach(i => {
+                  if (i.name && i.item_key) {
+                      // We replace commas to match the URL format used in the Table View
+                      itemLinkMap.set(i.name.trim(), i.item_key.replace(",", ""));
+                  }
+                  if (i.full_name && i.item_key) itemLinkMap.set(i.full_name.trim(), i.item_key.replace(",", ""));
+              });
+          }
 
           if (quest_key === 0) {
             // --- Table View Mode ---
@@ -217,6 +256,57 @@
             // 3. Populate the Single Item View
             document.getElementById("quest-title").innerText = quest_data_full.name;
 
+            // --- Pre-process Originators for Hyperlinking ---
+            let rawOriginators = quest_data_full.quest_originator ?? quest_data_full.quest_originators ?? quest_data_full.originator ?? quest_data_full.originators;
+            // Normalize to array (whether it was a string, array, or null)
+            let originatorsList = Array.isArray(rawOriginators) ? rawOriginators : (rawOriginators ? [rawOriginators] : []);
+            
+            let originatorDisplay = "Unknown Originator";
+            if (originatorsList.length > 0) {
+                originatorDisplay = originatorsList.map(l => {
+                    let name = (l || "").trim();
+                    // Check if originator name exists in charLinkMap
+                    if (charLinkMap.has(name)) {
+                        return `<a href="characters.html?c=${charLinkMap.get(name)}">${name}</a>`;
+                    }
+                    return name;
+                }).join(', ');
+            }
+
+             // --- Pre-process Location for Hyperlinking ---
+            let rawLocations = quest_data_full.locations;
+            let locationList = Array.isArray(rawLocations) ? rawLocations : (rawLocations ? [rawLocations] : []);
+            
+            let locationDisplay = "";
+            if (locationList.length > 0) {
+                locationDisplay = locationList.map(r => {
+                    let rName = (r || "").trim();
+                    // Check if location name exists in locLinkMap
+                    if (locLinkMap.has(rName)) {
+                        return `<a href="locations.html?i=${locLinkMap.get(rName)}">${rName}</a>`;
+                    }
+                    return rName;
+                }).join(', ');
+            }
+
+            // --- Pre-process Item for Hyperlinking ---
+            let rawItems = quest_data_full.rewards;
+            let itemList = Array.isArray(rawItems) ? rawItems : (rawItems ? [rawItems] : []);
+            
+            let rewardDisplay = "";
+            if (itemList.length > 0) {
+                rewardDisplay = itemList.map(r => {
+                    let rName = (r || "").trim();
+                    // Check if item name exists in itemLinkMap
+                    if (itemLinkMap.has(rName)) {
+                        return `<li><a href="items.html?i=${itemLinkMap.get(rName)}">${rName}</a></li>`;
+                    } else {
+                        return `<li>${rName}</li>`;
+                    }
+                    return rName;
+                }).join('');
+            }
+
             let htmlContent = `
                 <div class="row">
                     <div class="col-md-4 text-center">
@@ -235,17 +325,49 @@
                         <p>${quest_data_full.background}</p>
                         <p id="quest-humorous-desc">${quest_data_full.humorous_description}</p>
                         <hr>
-                        <p><strong>Originator:</strong> ${Array.isArray(quest_data_full.quest_originator ?? quest_data_full.quest_originators) ? (quest_data_full.quest_originator ?? quest_data_full.quest_originators).join(', ') : (quest_data_full.quest_originator || 'Unknown Originator')}</p>
-                        <p><strong>Category:</strong> ${Array.isArray(quest_data_full.category ?? quest_data_full.categories) ? (quest_data_full.category ?? quest_data_full.categories).join(', ') : (quest_data_full.category ?? quest_data_full.categories)}</p>
+                        <p><strong>Originator:</strong> ${originatorDisplay}</p>
+                        <div class="row">
+                          <div class="col-md-6">
+                          <p><strong>Category:</strong> ${Array.isArray(quest_data_full.category ?? quest_data_full.categories) ? (quest_data_full.category ?? quest_data_full.categories).join(', ') : (quest_data_full.category ?? quest_data_full.categories)}</p>
+                          </div>
+                          <div class="col-md-6">
+                          <p><strong>Status:</strong> ${Array.isArray(quest_data_full.status) ? (quest_data_full.status).join(', ') : (quest_data_full.status)}</p>
+                          </div>
+                          <div class="col-md-6">
+                          <p><strong>Objective:</strong> ${Array.isArray(quest_data_full.objective ?? quest_data_full.objectives) ? (quest_data_full.objective ?? quest_data_full.objectives).join(', ') : (quest_data_full.objective ?? quest_data_full.objectives)}</p>
+                          </div>
+                          <div class="col-md-6">
+                          <p><strong>Importance:</strong> ${Array.isArray(quest_data_full.importance) ? (quest_data_full.importance).join(', ') : (quest_data_full.importance)}</p>
+                          </div>
+                        </div>
                         <p><strong>Appears In:</strong> Chapter <a href="chapters.html?c=${quest_data_full.first_ch_num}">${quest_data_full.first_ch_num}</a>${quest_data_full.first_ch_num === quest_data_full.last_ch_num ? '' : ` to Chapter <a href="chapters.html?c=${quest_data_full.last_ch_num}">${quest_data_full.last_ch_num}</a>`}</p>
-                        <p><strong>Locations:</strong> ${Array.isArray(quest_data_full.locations) ? quest_data_full.locations.join(', ') : (quest_data_full.locations || '')}</p>
+                        <p><strong>Locations:</strong> ${locationDisplay}</p>
                         <hr>
-                        <h4>Characters</h4>
-                        <ul>
-                            ${Array.isArray(quest_data_full.characters) && quest_data_full.characters.length > 0 ? 
-                                quest_data_full.characters.map(a => `<li>${a.name || a}</li>`).join('') :
-                                '<li>Unknown</li>'}
-                        </ul>
+                        <div class="row">
+                            <div class="col-md-6">
+                              <h4>Characters</h4>
+                              <ul>
+                                  ${Array.isArray(quest_data_full.characters) && (quest_data_full.characters.length) > 0 ? 
+                                      (quest_data_full.characters).map(a => {
+                                          // Extract the name whether 'a' is a string or object
+                                          let charName = (a.name || a).trim();
+                                          // Check our map to see if we have a key for this name
+                                          if (charLinkMap.has(charName)) {
+                                              return `<li><a href="characters.html?c=${charLinkMap.get(charName)}">${charName}</a></li>`;
+                                          } else {
+                                              return `<li>${charName}</li>`;
+                                          }
+                                      }).join('') :
+                                      '<li>Unknown</li>'}
+                              </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Rewards</h4>
+                                <ul>
+                                    ${rewardDisplay}
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <hr>

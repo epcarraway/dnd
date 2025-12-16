@@ -8,6 +8,116 @@
     <meta name="description" content="Waterdeep Project">
     <meta name="author" content="Evan Carraway">
     <title>Waterdeep</title>
+    <style>
+        :root {
+            --bg-body: #fdfaf5;        /* Warm parchment background */
+            --bg-card: #ffffff;        /* White card background */
+            --text-main: #2c2925;      /* Dark charcoal for readability */
+            --text-muted: #6c757d;
+            --accent-gold: #c79c5d;    /* Gold for borders/accents */
+            --accent-dark: #4a423a;    /* Dark brown for headers */
+            --border-subtle: #e9ecef;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--accent-dark);
+            font-family: "Georgia", "Times New Roman", serif; /* Serif for headers feels more 'fantasy' */
+        }
+
+        /* --- Main Container & Cards --- */
+        #achievement-body {
+            background-color: var(--bg-card) !important;
+            border: 1px solid var(--border-subtle);
+            border-top: 4px solid var(--accent-gold) !important; /* Gold accent bar on top */
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: 40px !important;
+        }
+
+        /* --- Detail Cards (The 2x2 Grid) --- */
+        .detail-card {
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-subtle);
+            border-left: 3px solid var(--accent-gold);
+            border-radius: 6px;
+            padding: 15px;
+            height: 100%; /* Ensure equal height in grid */
+            transition: transform 0.2s ease;
+        }
+        
+        .detail-card:hover {
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .detail-card strong {
+            display: block;
+            color: var(--accent-dark);
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        /* --- Humorous Description --- */
+        #achievement-humorous-desc {
+            quotes: "“" "”";
+            font-family: "Georgia", serif;
+            font-style: italic;
+            color: #555;
+            background-color: #fcf8f2; /* Very light gold tint */
+            padding: 20px 30px;
+            border-radius: 8px;
+            position: relative;
+            margin: 25px 0;
+            border: 1px dashed #dccab1;
+        }
+        #achievement-humorous-desc::before {
+            font-size: 3em;
+            color: var(--accent-gold);
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            font-family: serif;
+        }
+
+        /* --- Reward Section --- */
+        .reward-box {
+            background: linear-gradient(to right, #fdfbf7, #fff);
+            border: 1px solid #e0d0b8;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .reward-title {
+            color: #d69e2e; /* Bootstrap warning-ish color but darker */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* --- Navigation Links --- */
+        .nav-links a {
+            color: var(--accent-dark);
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover {
+            color: var(--accent-gold);
+        }
+        .nav-separator {
+            color: #ccc;
+            margin: 0 8px;
+        }
+    </style>
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link href="css/sticky-footer-navbar.css" rel="stylesheet">
@@ -22,13 +132,13 @@
 
     <!-- Begin page content -->
     <main style="width:100%">
-      <div hidden id="achievement-container"  style="width:100%">
+      <div hidden id="achievement-container"  style="width:100%;padding:20px;">
         <h1 id="achievement-title"  class="container" style="text-align:center;padding-top:60px;vertical-align:middle"></h1>
         <div id="achievement-arrows-top"  class="container" style="padding-top:10px;padding-bottom:30px;">
           <div id="achievement-arrows-left-top" style="text-align: left; float: left"></div>
           <div id="achievement-arrows-right-top" style="text-align: right; float: right"></div>
         </div>
-        <div id="achievement-body" height="1100" style="width:100%"></div>
+        <div id="achievement-body" class="p-3 border rounded shadow-sm bg-light" height="1100" style="width:100%;"></div>
         <div id="achievement-arrows-bottom"  class="container" style="padding-top:10px;padding-bottom:30px;">
           <div id="achievement-arrows-left-bottom" style="text-align: left; float: left"></div>
           <div id="achievement-arrows-right-bottom" style="text-align: right; float: right"></div>
@@ -85,11 +195,44 @@
         google.charts.load('current',{'packages':['corechart','table']});
         // Set callback when the google visualization API is loaded
         google.charts.setOnLoadCallback(drawAllSheets);
+        
+        async function fetchItemData(filename) {
+            // Placeholder for a full fetch function. In a real environment, this URL would be updated.
+            const res = await fetch(filename);
+            return await res.json();
+        }
+
         async function drawAllSheets() {
           var tableRows = Array();
-          var ach_data;
-          const res = await fetch('https://epcarraway.blob.core.windows.net/dnd/ach/achievements.json')
-          ach_data = await res.json();
+          // 1. Fetch the main quest list
+          const [ach_data, locations_short, characters_short] = await Promise.all([
+              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/ach/achievements.json'),
+              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/location/locations_short.json'),
+              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/chars.json')
+          ]);
+
+          // 2. Build Character Lookup Map (Name/Full Name -> name_key)
+          // We use a Map to handle case-insensitive matching if needed, but direct string matching is usually safer for generated data.
+          // This ensures if "Johnny 5" appears in the location list, we know his key is "johnny5"
+          let charLinkMap = new Map();
+          if (Array.isArray(characters_short)) {
+              characters_short.forEach(c => {
+                  if (c.name && c.name_key) charLinkMap.set(c.name.trim(), c.name_key);
+                  if (c.full_name && c.name_key) charLinkMap.set(c.full_name.trim(), c.name_key);
+              });
+          }
+
+          // B. Location Map (Name -> location_key)
+          let locLinkMap = new Map();
+          if (Array.isArray(locations_short)) {
+              locations_short.forEach(l => {
+                  if (l.name && l.location_key) {
+                      // We replace commas to match the URL format used in the Table View
+                      locLinkMap.set(l.name.trim(), l.location_key.replace(",", ""));
+                  }
+              });
+          }
+
           ach_data_sorted = ach_data.sort((a, b) => b.a_num - a.a_num).sort((a, b) => b.ch_num - a.ch_num)
           if (chapter==0 || achievement==0) {
             console.log("parsing single page response");
@@ -100,7 +243,7 @@
                   var chapterNumberUrl = '<a href="chapters.html?c=' + chapterNumber + '">' + chapterNumber + '</a>'
                   var achievementNumber = ach_data_sorted[i].a_num;
                   var achievementName = ach_data_sorted[i].title;
-                  var achievementThumbnailUrl = '<a href="achievements.html?c=' + chapterNumber + '&a=' + achievementNumber + '"><img src="https://epcarraway.blob.core.windows.net/dnd/ach/' + chapterNumber + '_' + achievementNumber + '-200.png" style="width:80px"></a>'
+                  var achievementThumbnailUrl = '<a href="achievements.html?c=' + chapterNumber + '&a=' + achievementNumber + '"><img src="https://epcarraway.blob.core.windows.net/dnd/ach/' + chapterNumber + '_' + achievementNumber + '-200.jpg" style="width:80px"></a>'
                   var achievementUrl = '<a href="achievements.html?c=' + chapterNumber + '&a=' + achievementNumber + '">' + achievementName + '</a>'
                   var achievementDate = ach_data_sorted[i].date_time;
                   var achievementDescription = ach_data_sorted[i].description;
@@ -144,6 +287,15 @@
                 var ach_data_filtered = ach_data_sorted.filter(elem => elem.ch_num==chapter && elem.a_num==achievement)
                 var achievementNumberIndex = ach_data_sorted.findIndex(elem => elem.ch_num==chapter && elem.a_num==achievement)
                 var achievementName = ach_data_filtered[0].title;
+                var ch_num = ach_data_filtered[0].ch_num;
+                var a_num = ach_data_filtered[0].a_num;
+                var description = ach_data_filtered[0].description;
+                var location = ach_data_filtered[0].location;
+                var reward = ach_data_filtered[0].reward;
+                var humorous_description = ach_data_filtered[0].humorous_description;
+                var achievers = ach_data_filtered[0].achievers;
+                var date_time = ach_data_filtered[0].date_time;
+                var category = ach_data_filtered[0].category;
                 var achievementNumberIndexPrev = Math.max(achievementNumberIndex - 1, 0);
                 var chapterNumberPrev = ach_data_sorted[achievementNumberIndexPrev].ch_num;
                 var achievementNumberPrev = ach_data_sorted[achievementNumberIndexPrev].a_num;
@@ -161,8 +313,74 @@
                 document.getElementById("achievement-arrows-left-bottom").innerHTML += ' / <a href="achievements.html?c=' + chapterNumberPrev + '&a=' + achievementNumberPrev + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>Previous</a> / ';
                 document.getElementById("achievement-arrows-right-bottom").innerHTML = ' / <a href="achievements.html?c=' + chapterNumberNext + '&a=' + achievementNumberNext + '" class="text-decoration-none">Next<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a>';
                 document.getElementById("achievement-arrows-right-bottom").innerHTML += ' / <a href="achievements.html?c=' + chapterNumberLast + '&a=' + achievementNumberLast + '" class="text-decoration-none">Last<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a> / ';
-                document.getElementById("achievement-body").innerHTML = '<iframe id="myIframe" src="https://epcarraway.blob.core.windows.net/dnd/ach/' + chapter + '_' + achievement + '.html" frameborder="0" width="100%" height="1000" style="border:none;height:1000px"/>';
-            };
+                
+                // --- Pre-process Location for Hyperlinking ---
+                let rawLocations = location;
+                let locationList = Array.isArray(rawLocations) ? rawLocations : (rawLocations ? [rawLocations] : []);
+                
+                let locationDisplay = "";
+                if (locationList.length > 0) {
+                    locationDisplay = locationList.map(r => {
+                        let rName = (r || "").trim();
+                        // Check if location name exists in locLinkMap
+                        if (locLinkMap.has(rName)) {
+                            return `<a href="locations.html?i=${locLinkMap.get(rName)}">${rName}</a>`;
+                        }
+                        return rName;
+                    }).join(', ');
+                }
+                // --- Pre-process Character for Hyperlinking ---
+                let rawCharacters = achievers;
+                let characterList = Array.isArray(rawCharacters) ? rawCharacters : (rawCharacters ? [rawCharacters] : []);
+                
+                let characterDisplay = "";
+                if (characterList.length > 0) {
+                    characterDisplay = characterList.map(r => {
+                        let rName = (r || "").trim();
+                        // Check if character name exists in charLinkMap
+                        if (charLinkMap.has(rName.replace("Tuuki Soltpetar", "Tuuki").replace("Delnis Bricstan", "Delnis"))) {
+                            return `<a href="characters.html?i=${charLinkMap.get(rName)}">${rName}</a>`;
+                        }
+                        return rName;
+                    }).join(', ');
+                }
+                
+                let htmlContent = `
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <img src="https://epcarraway.blob.core.windows.net/dnd/ach/${chapter}_${achievement}.jpg" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.jpg?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                            <h4 class="mb-3">${achievementName}</h4>
+                        </div>
+                        <div class="col-md-7">
+                          <div>
+                            <h3>Description</h3>
+                            <p>${description}</p>
+                            <p id="achievement-humorous-desc">${humorous_description}</p>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-5 detail-item">
+                                  <p><strong>Achievers:</strong> ${characterDisplay}</p>
+                                </div>
+                                <div class="col-md-5 detail-item">
+                                  <p><strong>Category:</strong> ${Array.isArray(category) ? (category).join(', ') : (category)}</p>
+                                </div>
+                                <div class="col-md-5 detail-item">
+                                  <p><strong>Location:</strong> ${locationDisplay}</p>
+                                </div>
+                                <div class="col-md-5 detail-item">
+                                  <p><strong>Date:</strong> ${Array.isArray(date_time) ? (date_time).join(', ') : (date_time)}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <h3>🏆Reward</h3>
+                            <p>${reward}</p>
+                `;
+                
+                document.getElementById("achievement-body").innerHTML = htmlContent;
+            
+              };
+            
             };
           });
      </script> 
