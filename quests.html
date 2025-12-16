@@ -73,6 +73,7 @@
               <th>Full Name</th>
               <th>Originator</th>
               <th>Category</th>
+              <th>Status</th>
               <th>Description</th>
             </tr>
           </thead>
@@ -175,7 +176,9 @@
                 let questUrl = '<a href="quests.html?i=' + key + '">' + quest.name + '</a>';
                 let thumbnailUrl = '<a href="quests.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/quest/' + key + '-200.jpg" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.jpg?text=No+Image\';" style="width:80px"></a>';
                 let categoryDisplay = Array.isArray(quest.category) ? quest.category.join(', ') : quest.category;
-
+                //let statusDisplay = Array.isArray(quest.status) ? quest.status.join(', ') : quest.status;
+                //console.log(questUrl)
+                //console.log(statusDisplay)
                 tableRows.push([
                     thumbnailUrl,
                     chapterNumberUrl,
@@ -183,10 +186,11 @@
                     quest.name,
                     quest.originator,
                     categoryDisplay,
+                    quest.status,
                     quest.short_description
                 ]);
             });
-
+            //console.log(tableRows)
             $('#data-table').DataTable( {
               paging: true,
               pageLength: 100,
@@ -209,10 +213,11 @@
                 { "title": "Full Name" },
                 { "title": "Originator" }, 
                 { "title": "Category" }, 
+                { "title": "Status" }, 
                 { "title": "Short Description" }
               ]
             });
-            
+            console.log(1)
           } else {
             // --- Single Item View Mode ---
             document.getElementById("quest-container").hidden = false;
@@ -239,6 +244,7 @@
                         name: main_entry.name,
                         originator: main_entry.quest_originator,
                         category: main_entry.category,
+                        status: main_entry.status,
                         description: main_entry.short_description,
                         characters: [], // Cannot be determined from short data
                         characteristics: [], // Cannot be determined from short data
@@ -310,7 +316,7 @@
             let htmlContent = `
                 <div class="row">
                     <div class="col-md-4 text-center">
-                        <img src="https://epcarraway.blob.core.windows.net/dnd/quest/${quest_key}.jpg" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.jpg?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                        <img src="https://epcarraway.blob.core.windows.net/dnd/quest/${quest_key}.jpg" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.jpg?text=No+Image';" class="img-fluid rounded mb-3" style="max-height:400px;">
                         <h4 class="mb-3">${quest_data_full.name}</h4>
                         <div>
                             <l id="quest-aliases" text->
