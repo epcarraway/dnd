@@ -115,7 +115,7 @@
           
           const [organizations_short, char_data] = await Promise.all([
               fetchItemData('https://epcarraway.blob.core.windows.net/dnd/org/organizations_short.json'),
-              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/characters.json')
+              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/character_summaries.json')
           ]);
           // 2. Build Character Lookup Map (Name/Full Name -> name_key)
           // We use a Map to handle case-insensitive matching if needed, but direct string matching is usually safer for generated data.
@@ -124,8 +124,14 @@
           let charLinkMap = new Map();
           if (Array.isArray(char_data)) {
               char_data.forEach(c => {
-                  if (c.name && c.name_key) charLinkMap.set(c.name.trim(), c.name_key);
-                  if (c.full_name && c.name_key) charLinkMap.set(c.full_name.trim(), c.name_key);
+                  if (c.name && c.char_key) charLinkMap.set(c.name.trim(), c.char_key);
+                  if (c.full_name && c.char_key) charLinkMap.set(c.full_name.trim(), c.char_key);
+                  if (c.unique_name && c.char_key) charLinkMap.set(c.unique_name.trim(), c.char_key);
+                  if (Array.isArray(c.aliases)) {
+                      c.aliases.forEach(a => {
+                          if (a && c.char_key) charLinkMap.set(a.trim(), c.char_key);
+                      });
+                  }
               });
           }
           let orgLinkMap = new Map();

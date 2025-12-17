@@ -148,10 +148,9 @@
         <table id="data-table" class="display" style="width:100%">
           <thead>
             <tr>
-              <th>portrait</th>
+              <th>image</th>
               <th>chapter</th>
               <th>name</th>
-              <th>full_name</th>
               <th>occupation</th>
               <th>organization</th>
               <th>description</th>
@@ -190,9 +189,9 @@
       // Creates a DataTable from source JSON
        $(document).ready(function() {
         var searchParams = new URLSearchParams(window.location.search);
-        var name_key = 0
+        var char_key = 0
         if (searchParams.has("c")) {
-          name_key = searchParams.get("c")
+          char_key = searchParams.get("c")
         };
         // Load the visualization API and the corechart packages
         google.charts.load('current',{'packages':['corechart','table']});
@@ -205,17 +204,24 @@
               fetchItemData('https://epcarraway.blob.core.windows.net/dnd/org/organizations_short.json'),
               fetchItemData('https://epcarraway.blob.core.windows.net/dnd/location/locations_short.json'),
               fetchItemData('https://epcarraway.blob.core.windows.net/dnd/item/items_short.json'),
-              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/characters.json')
+              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/character_summaries.json')
+              //fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/characters.json')
           ]);
-          // 2. Build Character Lookup Map (Name/Full Name -> name_key)
+          // 2. Build Character Lookup Map (Name/Full Name -> char_key)
           // We use a Map to handle case-insensitive matching if needed, but direct string matching is usually safer for generated data.
           // This ensures if "Johnny 5" appears in the location list, we know his key is "johnny5"
           // A. Character Map (Name -> char_key)
           let charLinkMap = new Map();
           if (Array.isArray(char_data)) {
               char_data.forEach(c => {
-                  if (c.name && c.name_key) charLinkMap.set(c.name.trim(), c.name_key);
-                  if (c.full_name && c.name_key) charLinkMap.set(c.full_name.trim(), c.name_key);
+                  if (c.name && c.char_key) charLinkMap.set(c.name.trim(), c.char_key);
+                  if (c.full_name && c.char_key) charLinkMap.set(c.full_name.trim(), c.char_key);
+                  if (c.unique_name && c.char_key) charLinkMap.set(c.unique_name.trim(), c.char_key);
+                  if (Array.isArray(c.aliases)) {
+                      c.aliases.forEach(a => {
+                          if (a && c.char_key) charLinkMap.set(a.trim(), c.char_key);
+                      });
+                  }
               });
           }
           // B. Location Map (Name -> location_key)
@@ -225,6 +231,11 @@
                   if (l.name && l.location_key) {
                       // We replace commas to match the URL format used in the Table View
                       locLinkMap.set(l.name.trim(), l.location_key.replace(",", ""));
+                      if (Array.isArray(l.aliases)) {
+                          l.aliases.forEach(a => {
+                              if (a && l.location_key) locLinkMap.set(a.trim(), l.location_key.replace(",", ""));
+                          });
+                      }
                   }
               });
           }
@@ -245,33 +256,41 @@
               organizations_short.forEach(c => {
                   if (c.name && c.org_key) orgLinkMap.set(c.name.trim(), c.org_key);
                   if (c.full_name && c.org_key) orgLinkMap.set(c.full_name.trim(), c.org_key);
+                  if (c.name && c.org_key) orgLinkMap.set("The " + c.name.trim(), c.org_key);
+                  if (c.full_name && c.org_key) orgLinkMap.set("The " + c.full_name.trim(), c.org_key);
+                  if (Array.isArray(c.aliases)) {
+                      c.aliases.forEach(a => {
+                          if (a && c.org_key) orgLinkMap.set(a.trim(), c.org_key);
+                      });
+                  }
               });
           }
           char_data_sorted = char_data;
-          if (name_key==0) {
+          if (char_key==0) {
             console.log("parsing single page response");
             document.getElementById("table-container").hidden = false;
                 for (i=0; i<char_data_sorted.length; i++) {
-                  var characterKey = char_data_sorted[i].name_key;
+                  var characterKey = char_data_sorted[i].char_key;
                   //console.log(ch_num);
-                  var chapterUrl = '<a href="chapters.html?c=' + char_data_sorted[i].ch_num + '">' +  char_data_sorted[i].ch_num + '</a>'
+                  var chapterUrl = '<a href="chapters.html?c=' + char_data_sorted[i].last_ch_num + '">' +  char_data_sorted[i].last_ch_num + '</a>'
                   var characterUrl = '<a href="characters.html?c=' + characterKey + '">' + characterKey + '</a>'
-                  var characterName = char_data_sorted[i].full_name;
+                  var characterName = char_data_sorted[i].name || char_data_sorted[i].full_name;
+                  var characterFullName =  char_data_sorted[i].full_name || char_data_sorted[i].name;
                   var characterThumbnailUrl = '<a href="characters.html?c=' + characterKey + '"><img src="https://epcarraway.blob.core.windows.net/dnd/char/' + characterKey + '-200.jpg" style="width:80px"></a>'
                   var characterUrl = '<a href="characters.html?c=' + characterKey + '">' + characterName + '</a>'
-                  var characterDate = char_data_sorted[i].date_time;
-                  var characterDescription = char_data_sorted[i].description;
-                  var characterLocation = char_data_sorted[i].location;
+                  var characterDate = char_data_sorted[i].last_seen_datetime;
+                  var characterDescription = char_data_sorted[i].short_description;
+                  var characterLocation = char_data_sorted[i].last_location_seen;
                   var characterOccupation = char_data_sorted[i].occupation;
                   var characterOrganization = char_data_sorted[i].organization;
-                  tableRows = tableRows.concat([[characterThumbnailUrl, chapterUrl, characterUrl, characterName, characterOccupation, characterOrganization, characterDescription, characterLocation, characterDate]]);
+                  tableRows = tableRows.concat([[characterThumbnailUrl, chapterUrl, characterUrl, characterOccupation, characterOrganization, characterDescription, characterLocation, characterDate]]);
                 };
                 $('#data-table').DataTable( {
                   paging: false,
-                 // order: [[1, 'desc']],
+                  order: [[1, 'desc']],
                   data: tableRows,
                   "columns": [
-                    { "title": "thumbnail" },
+                    { "title": "image" },
                     { "title": "chapter" },
                     { 
                         "title": "name",
@@ -284,7 +303,6 @@
                           return title;
                         }
                     },
-                    { "title": "full_name" },
                     { "title": "occupation" }, 
                     { "title": "organization" }, 
                     { "title": "description" }, 
@@ -298,15 +316,15 @@
 
             // 2. Load the specific character's full detail JSON (e.g., holyavenger.json)
             try {
-                console.log('https://epcarraway.blob.core.windows.net/dnd/char/' + name_key + '.json')
-                character_data_full = await fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/' + name_key + '.json');
+                console.log('https://epcarraway.blob.core.windows.net/dnd/char/' + char_key + '.json')
+                character_data_full = await fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/' + char_key + '.json');
                 if (character_data_full && character_data_full.character_chronology) {
                 // 2. Assign the value to the new key
                 character_data_full.chronology = character_data_full.character_chronology;
               }
             } catch (e) {
                 // Fallback to a single synthesized entry if a dedicated JSON file doesn't exist
-                const specific_entries = char_data.filter(i => i.name_key === name_key);
+                const specific_entries = char_data.filter(i => i.char_key === char_key);
                 if (specific_entries.length > 0) {
                     // Just pick the entry with the highest rarity as the "main" one for the title
                     specific_entries.sort((a, b) => b.rarity - a.rarity);
@@ -328,20 +346,20 @@
                     return;
                 }
             }
-            //var char_data_sorted = char_data.sort((a, b) => a.name_key - b.name_key)
+            //var char_data_sorted = char_data.sort((a, b) => a.char_key - b.char_key)
             var char_data_sorted = char_data
             var characterKeyIndexLast = char_data_sorted.length - 1
-            var characterKeyLast = char_data_sorted.at(-1).name_key;
-            var characterKeyFirst = char_data_sorted.at(0).name_key;
-            var char_data_filtered = char_data_sorted.filter(elem => elem.name_key==name_key)
-            var characterKeyIndex = char_data_sorted.findIndex(elem => elem.name_key==name_key)
-            var characterName = char_data_filtered[0].name_key;
-            var characterFullName = char_data_filtered[0].full_name;
+            var characterKeyLast = char_data_sorted.at(-1).char_key;
+            var characterKeyFirst = char_data_sorted.at(0).char_key;
+            var char_data_filtered = char_data_sorted.filter(elem => elem.char_key==char_key)
+            var characterKeyIndex = char_data_sorted.findIndex(elem => elem.char_key==char_key)
+            var characterName = char_data_filtered[0].char_key;
+            var characterFullName = char_data_filtered[0].full_name || char_data_filtered[0].unique_name || char_data_filtered[0].name;
             var characterKeyIndexPrev = Math.max(characterKeyIndex - 1, 0);
-            var characterKeyPrev = char_data_sorted[characterKeyIndexPrev].name_key;
+            var characterKeyPrev = char_data_sorted[characterKeyIndexPrev].char_key;
             var characterKeyIndexNext = Math.min(characterKeyIndex + 1, characterKeyIndexLast);
-            var characterKeyNext = char_data_sorted[characterKeyIndexNext].name_key;
-            console.log("name_key: " + name_key);
+            var characterKeyNext = char_data_sorted[characterKeyIndexNext].char_key;
+            console.log("char_key: " + char_key);
             document.getElementById("character-title").innerText = characterFullName;
             '<a href="characters.html?c=' + characterKeyIndex + '">' + characterFullName + '</a>'
             document.getElementById("character-arrows-left-top").innerHTML = ' / <a href="characters.html?c=' + characterKeyFirst + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>First</a>';
@@ -436,7 +454,7 @@
             let htmlContent = `
                 <div class="row">
                     <div class="col-md-4 text-center">
-                        <img src="https://epcarraway.blob.core.windows.net/dnd/char/${name_key}.jpg" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.jpg?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                        <img src="https://epcarraway.blob.core.windows.net/dnd/char/${char_key}.jpg" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.jpg?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
                         <h4 class="mb-3">${character_data_full.name} (${character_data_full.occupation === "Unknown" ? "Unknown" : character_data_full.occupation})</h4>
                         <div>
                             <l id="character-aliases" text->
@@ -512,7 +530,7 @@
             
             
             
-            //document.getElementById("character-body").innerHTML = '<iframe id="myIframe" src="https://epcarraway.blob.core.windows.net/dnd/char/' + name_key + '.html" frameborder="0" width="100%" height="1000" style="border:none;height:1000px"/>';
+            //document.getElementById("character-body").innerHTML = '<iframe id="myIframe" src="https://epcarraway.blob.core.windows.net/dnd/char/' + char_key + '.html" frameborder="0" width="100%" height="1000" style="border:none;height:1000px"/>';
           //};
         };
       });

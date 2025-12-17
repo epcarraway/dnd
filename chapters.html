@@ -39,6 +39,7 @@
         <table id="data-table" class="display" style="width:100%">
           <thead>
             <tr>
+              <th>logo</th>
               <th>name</th>
               <th>description</th>
               <th>type</th>
@@ -93,16 +94,18 @@
                 for (i=0; i<chapterData.getNumberOfRows(); i++) {
                   var chapterNumber = chapterData.getValue(i, 0);
                   var chapterName = chapterData.getValue(i, 1);
+                  var chapterThumbnailUrl = '<a href="chapters.html?c=' + chapterNumber + '"><img src="https://epcarraway.blob.core.windows.net/dnd/ch' + chapterNumber + '-200.png" style="width:80px"></a>'
                   var chapterUrl = '<a href="chapters.html?c=' + chapterNumber + '">' + chapterName + '</a>'
                   var chapterDate = chapterData.getValue(i, 2);
                   var chapterBody = chapterData.getValue(i, 3);
-                  tableRows = tableRows.concat([[chapterNumber, chapterUrl, chapterDate, chapterBody]]);
+                  tableRows = tableRows.concat([[chapterThumbnailUrl, chapterNumber, chapterUrl, chapterDate, chapterBody]]);
                 };
                 $('#data-table').DataTable( {
                   paging: false,
-                  order: [[0, 'desc']],
+                  order: [[1, 'desc']],
                   data: tableRows,
                   "columns": [
+                      { "title": "thumbnail" },
                       { 
                         "title": "chapter",
                         "render": function(title, type, row, meta){
@@ -136,7 +139,7 @@
                 console.log(chapterQueryString);
                 chapterQuery = new google.visualization.Query(chapterQueryString);
                 chapterQuery.send(chapterChartFunction);
-                function chapterChartFunction (chapterResponse) {
+                async function chapterChartFunction (chapterResponse) {
                     // Get and data
                     var chapterData = chapterResponse.getDataTable();
                     var chapterNumber = chapterData.getValue(0, 0);
@@ -158,6 +161,173 @@
                     document.getElementById("chapter-arrows-right-bottom").innerHTML = ' / <a href="chapters.html?c=' + chapterNumberNext + '" class="text-decoration-none">Next<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a>';
                     document.getElementById("chapter-arrows-right-bottom").innerHTML += ' / <a href="chapters.html?c=' + chapterNumberLast + '" class="text-decoration-none">Last<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a> / ';
                     document.getElementById("chapter-body").innerHTML = chapterBody;
+                    console.log("test")
+                    async function fetchItemData(filename) {
+                          // Placeholder for a full fetch function. In a real environment, this URL would be updated.
+                          const res = await fetch(filename);
+                          return await res.json();
+                      }
+                    const [locations_short, characters_short, organizations_short, items_short] = await Promise.all([
+                            fetchItemData('https://epcarraway.blob.core.windows.net/dnd/location/locations_short.json'),
+                            fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/character_summaries.json'),
+                            fetchItemData('https://epcarraway.blob.core.windows.net/dnd/org/organization_summaries.json'),
+                            fetchItemData('https://epcarraway.blob.core.windows.net/dnd/item/item_summaries.json')
+                        ]);
+                        console.log(characters_short)
+                        // 2. Build Character Lookup Map (Name/Full Name -> char_key)
+                        // We use a Map to handle case-insensitive matching if needed, but direct string matching is usually safer for generated data.
+                        // This ensures if "Johnny 5" appears in the location list, we know his key is "johnny5"
+                        const charLinkMap = {};
+                        if (Array.isArray(characters_short)) {
+                            characters_short.forEach(c => {
+                                if (c.unique_name && c.char_key) charLinkMap[c.unique_name.trim()] = "characters.html?c=" + c.char_key;
+                                if (c.full_name && c.char_key) charLinkMap[c.full_name.trim()] = "characters.html?c=" + c.char_key;
+                                if (c.name && c.char_key) charLinkMap[c.name.trim()] = "characters.html?c=" + c.char_key;
+                                if (Array.isArray(c.aliases)) {
+                                    c.aliases.forEach(a => {
+                                        if (a.length >=3 && c.char_key) charLinkMap[a.trim()] = "characters.html?c=" + c.char_key;
+                                    });
+                                }
+                            });
+                        }
+
+                        // B. Location Map (Name -> location_key)
+                        const locLinkMap = new Map();
+                        if (Array.isArray(locations_short)) {
+                            locations_short.forEach(l => {
+                                    // We replace commas to match the URL format used in the Table View
+                                    if (l.full_name && l.location_key) locLinkMap[l.full_name.trim()] = "locations.html?i=" + l.location_key.replace(",", "");
+                                    if (l.name && l.location_key) locLinkMap[l.name.trim()] = "locations.html?i=" + l.location_key.replace(",", "");
+                                    if (Array.isArray(l.aliases)) {
+                                        l.aliases.forEach(a => {
+                                            if (l.length >=3 && l.location_key) charLinkMap[a.trim()] = "locations.html?i=" + l.location_key;
+                                        });
+                                    }
+                            });
+                        }
+
+                        // B. Item Map (Name -> item_key)
+                        const itemLinkMap = new Map();
+                        if (Array.isArray(items_short)) {
+                            items_short.forEach(l => {
+                                    // We replace commas to match the URL format used in the Table View
+                                    if (l.full_name && l.item_key) itemLinkMap[l.full_name.trim()] = "items.html?i=" + l.item_key.replace(",", "");
+                                    if (l.name && l.item_key) itemLinkMap[l.name.trim()] = "items.html?i=" + l.item_key.replace(",", "");
+                                    if (Array.isArray(l.aliases)) {
+                                        l.aliases.forEach(a => {
+                                            if (l.length >=3 && l.item_key) charLinkMap[a.trim()] = "items.html?i=" + l.item_key;
+                                        });
+                                    }
+                            });
+                        }
+
+                        const orgLinkMap = new Map();
+                        if (Array.isArray(organizations_short)) {
+                            organizations_short.forEach(c => {
+                                if (c.full_name && c.org_key) orgLinkMap[c.full_name.trim()] = "organizations.html?i=" + c.org_key;
+                                if (c.name && c.org_key) orgLinkMap[c.name.trim()] = "organizations.html?i=" + c.org_key;
+                                if (Array.isArray(c.aliases)) {
+                                    c.aliases.forEach(a => {
+                                        if (a.length >=3 && c.org_key) orgLinkMap[a.trim()] = "organizations.html?i=" + c.org_key;
+                                    });
+                                }
+                            });
+                        }
+
+                    /**
+                     * Auto-links text, but only links each phrase ONCE per page load.
+                     */
+                    function autoLinkOnce(containerElement, linkMap) {
+                        // 1. Sort keys by length to handle sub-string matches correctly
+                        const phrases = Object.keys(linkMap).sort((a, b) => b.length - a.length);
+                        if (phrases.length === 0) return;
+
+                        // 2. Escape regex characters and build a global pattern
+                        const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        const regex = new RegExp(`(${phrases.map(escapeRegExp).join('|')})`, 'g');
+
+                        // 3. Track which phrases have already been linked
+                        const usedPhrases = new Set();
+
+                        // 4. Create TreeWalker
+                        const walker = document.createTreeWalker(
+                            containerElement,
+                            NodeFilter.SHOW_TEXT,
+                            {
+                                acceptNode: function(node) {
+                                    // Skip existing links, scripts, etc.
+                                    if (['A', 'SCRIPT', 'STYLE'].includes(node.parentNode.tagName)) {
+                                        return NodeFilter.FILTER_REJECT;
+                                    }
+                                    return NodeFilter.FILTER_ACCEPT;
+                                }
+                            },
+                            false
+                        );
+
+                        const nodesToReplace = [];
+                        while (walker.nextNode()) {
+                            nodesToReplace.push(walker.currentNode);
+                        }
+
+                        // 5. Process nodes
+                        for (const node of nodesToReplace) {
+                            // Optimization: Stop processing if we have linked every possible phrase
+                            if (usedPhrases.size === phrases.length) break;
+
+                            // If the text doesn't match any of our phrases, skip expensive splitting
+                            regex.lastIndex = 0;
+                            if (!regex.test(node.nodeValue)) continue;
+
+                            const parts = node.nodeValue.split(regex);
+                            const fragment = document.createDocumentFragment();
+                            let modified = false; // Flag to check if we actually added a link in this node
+
+                            parts.forEach(part => {
+                                // Check if it is a keyword AND if we haven't used it yet
+                                if (Object.prototype.hasOwnProperty.call(linkMap, part) && !usedPhrases.has(part)) {
+                                    const a = document.createElement('a');
+                                    a.href = linkMap[part];
+                                    a.textContent = part;
+                                    a.target = "_blank";
+                                    a.style.color = "blue"; 
+                                    // a.style.fontWeight = "bold"; // Optional
+                                    
+                                    fragment.appendChild(a);
+                                    
+                                    // Mark this phrase as used so it won't be linked again
+                                    usedPhrases.add(part);
+                                    modified = true;
+                                } else {
+                                    fragment.appendChild(document.createTextNode(part));
+                                }
+                            });
+
+                            // Only replace the DOM node if we actually inserted a new link.
+                            // This prevents breaking text nodes apart if they only contain 
+                            // keywords we have already linked previously.
+                            if (modified) {
+                                node.parentNode.replaceChild(fragment, node);
+                            }
+                        }
+                    };
+                    
+                    const targetDiv = document.getElementById('chapter-body');
+                    console.log(targetDiv)
+                    console.log(charLinkMap)
+                    const dndLinks = {
+                        "Draconic Foresight": "https://roll20.net/compendium/dnd5e/Foresight",
+                        "Ivira": "/npcs/ivira",
+                        "He-Rax": "/chars/he-rax",
+                        "Oblex": "https://www.dndbeyond.com/monsters/oblex",
+                        "Mimic Blood": "/items/mimic-blood"
+                    };
+                    autoLinkOnce(targetDiv, orgLinkMap);
+                    autoLinkOnce(targetDiv, charLinkMap);
+                    autoLinkOnce(targetDiv, locLinkMap);
+                    autoLinkOnce(targetDiv, itemLinkMap);
+                    //autoLink(targetDiv, orgLinkMap);
+                    //autoLink(targetDiv, locLinkMap);
                 };
             };
           }
