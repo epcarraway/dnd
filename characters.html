@@ -278,11 +278,12 @@
                   var characterFullName =  char_data_sorted[i].full_name || char_data_sorted[i].name;
                   var characterThumbnailUrl = '<a href="characters.html?c=' + characterKey + '"><img src="https://epcarraway.blob.core.windows.net/dnd/char/' + characterKey + '-200.jpg" style="width:80px"></a>'
                   var characterUrl = '<a href="characters.html?c=' + characterKey + '">' + characterName + '</a>'
-                  var characterDate = char_data_sorted[i].last_seen_datetime;
-                  var characterDescription = char_data_sorted[i].short_description;
-                  var characterLocation = char_data_sorted[i].last_location_seen;
-                  var characterOccupation = char_data_sorted[i].occupation;
-                  var characterOrganization = char_data_sorted[i].organization;
+                  var characterDate = char_data_sorted[i].last_seen_datetime || "";
+                  var characterDescription = char_data_sorted[i].short_description || "";
+                  var characterLocation = char_data_sorted[i].last_location_seen || "";
+                  var characterOccupation = char_data_sorted[i].occupation || "";
+                  var characterOrganization = char_data_sorted[i].organization || "";
+                  console.log(i,characterUrl)
                   tableRows = tableRows.concat([[characterThumbnailUrl, chapterUrl, characterUrl, characterOccupation, characterOrganization, characterDescription, characterLocation, characterDate]]);
                 };
                 $('#data-table').DataTable( {
