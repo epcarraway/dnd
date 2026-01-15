@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="favicon.ico">
+    <meta name="description" content="Waterdeep Project - Shop Alchemy">
+    <meta name="author" content="Evan Carraway">
+    <title>Waterdeep - Shop Alchemy</title>
+    <style>
+        /* Embedded CSS for Styling */
+        #shopalchemy-humorous-desc {
+            font-style: italic;
+            padding: 15px;
+            border-left: 4px solid #14110d;
+            margin: 20px 0;
+            /* background-color: #fef8f0; */
+            quotes: "“" "”";
+        }
+        #shopalchemy-humorous-desc::before {
+            content: open-quote;
+            font-size: 1.5em;
+            font-weight: bold;
+            /* color: #d2b48c; */
+        }
+        #shopalchemy-humorous-desc::after {
+            content: close-quote;
+            font-size: 1.5em;
+            font-weight: bold;
+            /* color: #d2b48c; */
+        }
+        #shopalchemy-aliases {
+            font-size: 0.9em;
+            font-style: italic;
+            /* color: #d2b48c; */
+        }
+    </style>
+    <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="css/sticky-footer-navbar.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>  
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+  </head>
+
+  <body  style="width:100%">
+    <div id="header"></div>
+
+    <main style="width:100%">
+      <div hidden id="shopalchemy-container"  class="container" style="width:100%; padding-top:60px;">
+        <h1 id="shopalchemy-title"  class="container" style="text-align:center;padding-bottom:30px;vertical-align:middle"></h1>
+        <div id="shopalchemy-arrows-top"  class="container" style="padding-top:10px;padding-bottom:30px;">
+          <div style="text-align: center;">
+            <a href="shopalchemy.html" class="btn btn-primary">← Back to All Shop Alchemy</a>
+          </div>
+        </div>
+        <div id="shopalchemy-body" class="p-3 border rounded shadow-sm bg-light" style="width:100%">
+        </div>
+        <div id="shopalchemy-arrows-bottom"  class="container" style="padding-top:30px;padding-bottom:30px;">
+          <div style="text-align: center;">
+            <a href="shopalchemy.html" class="btn btn-primary">← Back to All Shop Alchemy</a>
+          </div>
+        </div>
+      </div>
+      
+      <div hidden id="table-container" class="container" style="padding-top:60px;">  
+        <h1 class="text-center" style="padding-bottom:30px;">All Magical Shop Alchemy</h1>
+        <table id="data-table" class="display" style="width:100%">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Price</th>
+              <th>Craft DC</th>
+              <th>Ingredients</th>
+            </tr>
+          </thead>
+        </table>
+      </div>  
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-white">
+      <div class="container-fluid">
+        <span class="text-muted">© Carraway 2026</span>
+      </div>
+    </footer>
+    
+    <script src="js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="js/jquery-3.6.0.js"></script> 
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	  <script>
+      $(function(){
+        $("#header").load("header.html",  function(){
+          document.getElementById("shopalchemy").classList.add('active'); // Assuming an 'shopalchemy' link in header.html
+        });
+      });
+    </script>
+    <script>
+       $(document).ready(function() {
+        const convertToKey = (name) => {
+          return name
+            .toLowerCase()             // 1. Convert to lowercase
+            .replace(/[^a-z0-9]/g, ''); // 2. Replace anything that represents NOT (^) a-z or 0-9
+        };
+        var searchParams = new URLSearchParams(window.location.search);
+        var shopalchemy_key = searchParams.has("i") ? searchParams.get("i") : 0;
+        
+        google.charts.load('current',{'packages':['corechart','table']});
+        google.charts.setOnLoadCallback(drawAllSheets);
+
+
+        function fetchShopAlchemyData() {
+          return new Promise((resolve, reject) => {
+             var alchemyshopQueryString = 'https://docs.google.com/spreadsheets/d/1bHkNDXQp9k-bHrdccHC5JTvREgqFKpwr-6SbVoPM61A/gviz/tq?sheet=Alchemy&headers=1&tq=' + encodeURIComponent('SELECT A, B, D, E, F');
+             var alchemyshopQuery = new google.visualization.Query(alchemyshopQueryString);
+             
+             // We pass an anonymous function here to handle the response
+             alchemyshopQuery.send(function(alchemyshopResponse) {
+                if (alchemyshopResponse.isError()) {
+                    console.error('Error in query: ' + alchemyshopResponse.getMessage() + ' ' + alchemyshopResponse.getDetailedMessage());
+                    reject(alchemyshopResponse.getMessage());
+                    return;
+                }
+
+                var alchemyshopData = alchemyshopResponse.getDataTable();
+                const alchemyshopResults = [];
+                
+                for (let i = 0; i < alchemyshopData.getNumberOfRows(); i++) {
+                   var name = alchemyshopData.getValue(i, 0);
+                   var key = convertToKey(name); // Ensure scope matches your helper function
+                   var description = alchemyshopData.getValue(i, 1);
+                   var price = alchemyshopData.getValue(i, 2);
+                   var craft_dc = alchemyshopData.getValue(i, 3);
+                   var ingredients = alchemyshopData.getValue(i, 4);
+                   
+                   alchemyshopResults.push({
+                       name: name, 
+                       shopalchemy_key: key, 
+                       description: description, 
+                       price: price, 
+                       craft_dc: craft_dc, 
+                       ingredients: ingredients
+                   });
+                }
+                
+                // This resolves the Promise, sending data back to drawAllSheets
+                resolve(alchemyshopResults); 
+             });
+          });
+        }
+        async function drawAllSheets() {
+          let shopalchemy_data_full = [];
+          
+          // 1. Fetch the main shopalchemy list
+          const shopalchemy_short = await fetchShopAlchemyData();
+          if (shopalchemy_key === 0) {
+            // --- Table View Mode ---
+            document.getElementById("table-container").hidden = false;
+            let unique_shopalchemy = new Map();
+
+            // Aggregate unique shopalchemy and find the best single description
+            shopalchemy_short.forEach(shopalchemy => {
+                // If this is the first time seeing the shopalchemy_key, or this entry is "rarer"
+                if (!unique_shopalchemy.has(shopalchemy.shopalchemy_key) || (shopalchemy.price > unique_shopalchemy.get(shopalchemy.shopalchemy_key).price)) {
+                    unique_shopalchemy.set(shopalchemy.shopalchemy_key, shopalchemy);
+                }
+            });
+
+            let tableRows = [];
+            unique_shopalchemy.forEach((shopalchemy, key) => {
+                let shopalchemyUrl = '<a href="shopalchemy.html?i=' + key + '">' + shopalchemy.name + '</a>';
+                let thumbnailUrl = '<a href="shopalchemy.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/alchemyshop/' + key + '-200.jpg" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.jpg?text=No+Image\';" style="width:80px"></a>';
+                let craft_dcDisplay = Array.isArray(shopalchemy.craft_dc) ? shopalchemy.craft_dc.join(', ') : shopalchemy.craft_dc;
+                let ingredientsDisplay = Array.isArray(shopalchemy.ingredients) ? shopalchemy.ingredients.join(', ') : shopalchemy.ingredients;
+                tableRows.push([
+                    thumbnailUrl,
+                    shopalchemyUrl,
+                    shopalchemy.price,
+                    craft_dcDisplay,
+                    shopalchemy.description.slice(0, 200) + '...',
+                    ingredientsDisplay
+                ]);
+            });
+
+            $('#data-table').DataTable( {
+              paging: true,
+              pageLength: 100,
+              order: [[2, 'desc']],
+              data: tableRows,
+              columns: [
+                { "title": "Image" },
+                { "title": "Name", "className": 'dt-body-left' },
+                { "title": "Price" }, 
+                { "title": "Craft DC" }, 
+                { "title": "Description" }, 
+                { "title": "Ingredients" }
+              ]
+            });
+            
+          } else {
+            // --- Single Shop Alchemy View Mode ---
+            document.getElementById("shopalchemy-container").hidden = false;
+            
+            shopalchemy_data_full = shopalchemy_short.find(alchemy => alchemy.shopalchemy_key === shopalchemy_key);
+
+            // Safety check: What if the key doesn't exist?
+            if (!shopalchemy_data_full) {
+                document.getElementById("shopalchemy-body").innerHTML = "<p>Alchemy not found.</p>";
+                return;
+            }
+            // 3. Populate the Single Shop Alchemy View
+            document.getElementById("shopalchemy-title").innerText = shopalchemy_data_full.name;
+            let htmlContent = `
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <img src="https://epcarraway.blob.core.windows.net/dnd/alchemyshop/${shopalchemy_key}.jpg" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.jpg?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                        <h4 class="mb-3">${shopalchemy_data_full.name} (${shopalchemy_data_full.price === "Unknown" ? "Unknown Price" : shopalchemy_data_full.price})</h4>
+                    </div>
+                    <div class="col-md-8">
+                        <h2>Description & Lore</h2>
+                        <p>${shopalchemy_data_full.description.replace(/\n/g, "<br>")}</p>
+                        <hr>
+                        <p><strong>Craft DC:</strong> ${Array.isArray(shopalchemy_data_full.craft_dc) ? shopalchemy_data_full.craft_dc.join(', ') : shopalchemy_data_full.craft_dc}</p>
+                        <p><strong>Ingredients:</strong> ${Array.isArray(shopalchemy_data_full.ingredients) ? shopalchemy_data_full.ingredients.join(', ') : shopalchemy_data_full.ingredients || 'none'}</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById("shopalchemy-body").innerHTML = htmlContent;
+          }
+        }
+      });
+     </script> 
+  </body>
+</html>

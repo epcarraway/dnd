@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="favicon.ico">
+    <meta name="description" content="Waterdeep Project - Shop Upgrades">
+    <meta name="author" content="Evan Carraway">
+    <title>Waterdeep - Shop Upgrades</title>
+    <style>
+        /* Embedded CSS for Styling */
+        #shopupgrade-humorous-desc {
+            font-style: italic;
+            padding: 15px;
+            border-left: 4px solid #14110d;
+            margin: 20px 0;
+            /* background-color: #fef8f0; */
+            quotes: "“" "”";
+        }
+        #shopupgrade-humorous-desc::before {
+            content: open-quote;
+            font-size: 1.5em;
+            font-weight: bold;
+            /* color: #d2b48c; */
+        }
+        #shopupgrade-humorous-desc::after {
+            content: close-quote;
+            font-size: 1.5em;
+            font-weight: bold;
+            /* color: #d2b48c; */
+        }
+        #shopupgrade-aliases {
+            font-size: 0.9em;
+            font-style: italic;
+            /* color: #d2b48c; */
+        }
+    </style>
+    <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="css/sticky-footer-navbar.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>  
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+  </head>
+
+  <body  style="width:100%">
+    <div id="header"></div>
+
+    <main style="width:100%">
+      <div hidden id="shopupgrade-container"  class="container" style="width:100%; padding-top:60px;">
+        <h1 id="shopupgrade-title"  class="container" style="text-align:center;padding-bottom:30px;vertical-align:middle"></h1>
+        <div id="shopupgrade-arrows-top"  class="container" style="padding-top:10px;padding-bottom:30px;">
+          <div style="text-align: center;">
+            <a href="shopupgrades.html" class="btn btn-primary">← Back to All Shop Upgrades</a>
+          </div>
+        </div>
+        <div id="shopupgrade-body" class="p-3 border rounded shadow-sm bg-light" style="width:100%">
+        </div>
+        <div id="shopupgrade-arrows-bottom"  class="container" style="padding-top:30px;padding-bottom:30px;">
+          <div style="text-align: center;">
+            <a href="shopupgrades.html" class="btn btn-primary">← Back to All Shop Upgrades</a>
+          </div>
+        </div>
+      </div>
+      
+      <div hidden id="table-container" class="container" style="padding-top:60px;">  
+        <h1 class="text-center" style="padding-bottom:30px;">All Magical Shop Upgrades</h1>
+        <table id="data-table" class="display" style="width:100%">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Price</th>
+              <th>Base Item</th>
+              <th>Owner</th>
+            </tr>
+          </thead>
+        </table>
+      </div>  
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-white">
+      <div class="container-fluid">
+        <span class="text-muted">© Carraway 2026</span>
+      </div>
+    </footer>
+    
+    <script src="js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="js/jquery-3.6.0.js"></script> 
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	  <script>
+      $(function(){
+        $("#header").load("header.html",  function(){
+          document.getElementById("shopupgrades").classList.add('active'); // Assuming an 'shopupgrades' link in header.html
+        });
+      });
+    </script>
+    <script>
+       $(document).ready(function() {
+        const convertToKey = (name) => {
+          return name
+            .toLowerCase()             // 1. Convert to lowercase
+            .replace(/[^a-z0-9]/g, ''); // 2. Replace anything that represents NOT (^) a-z or 0-9
+        };
+        var searchParams = new URLSearchParams(window.location.search);
+        var shopupgrade_key = searchParams.has("i") ? searchParams.get("i") : 0;
+        
+        google.charts.load('current',{'packages':['corechart','table']});
+        google.charts.setOnLoadCallback(drawAllSheets);
+
+
+        function fetchShopUpgradeData() {
+          return new Promise((resolve, reject) => {
+             var upgradeshopQueryString = 'https://docs.google.com/spreadsheets/d/1bHkNDXQp9k-bHrdccHC5JTvREgqFKpwr-6SbVoPM61A/gviz/tq?sheet=Upgrades&headers=1&tq=' + encodeURIComponent('SELECT A, B, D, E, F');
+             var upgradeshopQuery = new google.visualization.Query(upgradeshopQueryString);
+             
+             // We pass an anonymous function here to handle the response
+             upgradeshopQuery.send(function(upgradeshopResponse) {
+                if (upgradeshopResponse.isError()) {
+                    console.error('Error in query: ' + upgradeshopResponse.getMessage() + ' ' + upgradeshopResponse.getDetailedMessage());
+                    reject(upgradeshopResponse.getMessage());
+                    return;
+                }
+
+                var upgradeshopData = upgradeshopResponse.getDataTable();
+                const upgradeshopResults = [];
+                
+                for (let i = 0; i < upgradeshopData.getNumberOfRows(); i++) {
+                   var name = upgradeshopData.getValue(i, 0);
+                   var key = convertToKey(name); // Ensure scope matches your helper function
+                   var description = upgradeshopData.getValue(i, 1);
+                   var price = upgradeshopData.getValue(i, 2);
+                   var base_item = upgradeshopData.getValue(i, 3);
+                   var owner = upgradeshopData.getValue(i, 4);
+                   
+                   upgradeshopResults.push({
+                       name: name, 
+                       shopupgrade_key: key, 
+                       description: description, 
+                       price: price, 
+                       base_item: base_item, 
+                       owner: owner
+                   });
+                }
+                
+                // This resolves the Promise, sending data back to drawAllSheets
+                resolve(upgradeshopResults); 
+             });
+          });
+        }
+        async function drawAllSheets() {
+          let shopupgrade_data_full = [];
+          
+          // 1. Fetch the main shopupgrade list
+          const shopupgrades_short = await fetchShopUpgradeData();
+          if (shopupgrade_key === 0) {
+            // --- Table View Mode ---
+            document.getElementById("table-container").hidden = false;
+            let unique_shopupgrades = new Map();
+
+            // Aggregate unique shopupgrades and find the best single description
+            shopupgrades_short.forEach(shopupgrade => {
+                // If this is the first time seeing the shopupgrade_key, or this entry is "rarer"
+                if (!unique_shopupgrades.has(shopupgrade.shopupgrade_key) || (shopupgrade.price > unique_shopupgrades.get(shopupgrade.shopupgrade_key).price)) {
+                    unique_shopupgrades.set(shopupgrade.shopupgrade_key, shopupgrade);
+                }
+            });
+
+            let tableRows = [];
+            unique_shopupgrades.forEach((shopupgrade, key) => {
+                let shopupgradeUrl = '<a href="shopupgrades.html?i=' + key + '">' + shopupgrade.name + '</a>';
+                let thumbnailUrl = '<a href="shopupgrades.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/upgradeshop/' + key + '-200.jpg" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.jpg?text=No+Image\';" style="width:80px"></a>';
+                let base_itemDisplay = Array.isArray(shopupgrade.base_item) ? shopupgrade.base_item.join(', ') : shopupgrade.base_item;
+                let ownerDisplay = Array.isArray(shopupgrade.owner) ? shopupgrade.owner.join(', ') : shopupgrade.owner;
+                tableRows.push([
+                    thumbnailUrl,
+                    shopupgradeUrl,
+                    shopupgrade.price,
+                    base_itemDisplay,
+                    shopupgrade.description.slice(0, 200) + '...',
+                    ownerDisplay
+                ]);
+            });
+
+            $('#data-table').DataTable( {
+              paging: true,
+              pageLength: 100,
+              order: [[2, 'desc']],
+              data: tableRows,
+              columns: [
+                { "title": "Image" },
+                { "title": "Name", "className": 'dt-body-left' },
+                { "title": "Price" }, 
+                { "title": "Base Item" }, 
+                { "title": "Description" }, 
+                { "title": "Owner" }
+              ]
+            });
+            
+          } else {
+            // --- Single Shop Upgrade View Mode ---
+            document.getElementById("shopupgrade-container").hidden = false;
+            
+            shopupgrade_data_full = shopupgrades_short.find(upgrade => upgrade.shopupgrade_key === shopupgrade_key);
+
+            // Safety check: What if the key doesn't exist?
+            if (!shopupgrade_data_full) {
+                document.getElementById("shopupgrade-body").innerHTML = "<p>Upgrade not found.</p>";
+                return;
+            }
+            // 3. Populate the Single Shop Upgrade View
+            document.getElementById("shopupgrade-title").innerText = shopupgrade_data_full.name;
+            let htmlContent = `
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <img src="https://epcarraway.blob.core.windows.net/dnd/upgradeshop/${shopupgrade_key}.jpg" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.jpg?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                        <h4 class="mb-3">${shopupgrade_data_full.name} (${shopupgrade_data_full.price === "Unknown" ? "Unknown Price" : shopupgrade_data_full.price})</h4>
+                    </div>
+                    <div class="col-md-8">
+                        <h2>Description & Lore</h2>
+                        <p>${shopupgrade_data_full.description.replace(/\n/g, "<br>")}</p>
+                        <hr>
+                        <p><strong>Base Item:</strong> ${Array.isArray(shopupgrade_data_full.base_item) ? shopupgrade_data_full.base_item.join(', ') : shopupgrade_data_full.base_item}</p>
+                        <p><strong>Owner:</strong> ${Array.isArray(shopupgrade_data_full.owner) ? shopupgrade_data_full.owner.join(', ') : shopupgrade_data_full.owner || 'none'}</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById("shopupgrade-body").innerHTML = htmlContent;
+          }
+        }
+      });
+     </script> 
+  </body>
+</html>

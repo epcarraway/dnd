@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="favicon.ico">
+    <meta name="description" content="Waterdeep Project - Shop Items">
+    <meta name="author" content="Evan Carraway">
+    <title>Waterdeep - Shop Items</title>
+    <style>
+        /* Embedded CSS for Styling */
+        #shopitem-humorous-desc {
+            font-style: italic;
+            padding: 15px;
+            border-left: 4px solid #14110d;
+            margin: 20px 0;
+            /* background-color: #fef8f0; */
+            quotes: "“" "”";
+        }
+        #shopitem-humorous-desc::before {
+            content: open-quote;
+            font-size: 1.5em;
+            font-weight: bold;
+            /* color: #d2b48c; */
+        }
+        #shopitem-humorous-desc::after {
+            content: close-quote;
+            font-size: 1.5em;
+            font-weight: bold;
+            /* color: #d2b48c; */
+        }
+        #shopitem-aliases {
+            font-size: 0.9em;
+            font-style: italic;
+            /* color: #d2b48c; */
+        }
+    </style>
+    <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="css/sticky-footer-navbar.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>  
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+  </head>
+
+  <body  style="width:100%">
+    <div id="header"></div>
+
+    <main style="width:100%">
+      <div hidden id="shopitem-container"  class="container" style="width:100%; padding-top:60px;">
+        <h1 id="shopitem-title"  class="container" style="text-align:center;padding-bottom:30px;vertical-align:middle"></h1>
+        <div id="shopitem-arrows-top"  class="container" style="padding-top:10px;padding-bottom:30px;">
+          <div style="text-align: center;">
+            <a href="shopitems.html" class="btn btn-primary">← Back to All Shop Items</a>
+          </div>
+        </div>
+        <div id="shopitem-body" class="p-3 border rounded shadow-sm bg-light" style="width:100%">
+        </div>
+        <div id="shopitem-arrows-bottom"  class="container" style="padding-top:30px;padding-bottom:30px;">
+          <div style="text-align: center;">
+            <a href="shopitems.html" class="btn btn-primary">← Back to All Shop Items</a>
+          </div>
+        </div>
+      </div>
+      
+      <div hidden id="table-container" class="container" style="padding-top:60px;">  
+        <h1 class="text-center" style="padding-bottom:30px;">All Magical Shop Items</h1>
+        <table id="data-table" class="display" style="width:100%">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Price</th>
+              <th>Category</th>
+              <th>Restriction</th>
+            </tr>
+          </thead>
+        </table>
+      </div>  
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-white">
+      <div class="container-fluid">
+        <span class="text-muted">© Carraway 2026</span>
+      </div>
+    </footer>
+    
+    <script src="js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="js/jquery-3.6.0.js"></script> 
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	  <script>
+      $(function(){
+        $("#header").load("header.html",  function(){
+          document.getElementById("shopitems").classList.add('active'); // Assuming an 'shopitems' link in header.html
+        });
+      });
+    </script>
+    <script>
+       $(document).ready(function() {
+        const convertToKey = (name) => {
+          return name
+            .toLowerCase()             // 1. Convert to lowercase
+            .replace(/[^a-z0-9]/g, ''); // 2. Replace anything that represents NOT (^) a-z or 0-9
+        };
+        var searchParams = new URLSearchParams(window.location.search);
+        var shopitem_key = searchParams.has("i") ? searchParams.get("i") : 0;
+        
+        google.charts.load('current',{'packages':['corechart','table']});
+        google.charts.setOnLoadCallback(drawAllSheets);
+
+
+        function fetchShopItemData() {
+          return new Promise((resolve, reject) => {
+             var itemshopQueryString = 'https://docs.google.com/spreadsheets/d/1bHkNDXQp9k-bHrdccHC5JTvREgqFKpwr-6SbVoPM61A/gviz/tq?sheet=Buying&headers=1&tq=' + encodeURIComponent('SELECT A, B, D, E, F');
+             var itemshopQuery = new google.visualization.Query(itemshopQueryString);
+             
+             // We pass an anonymous function here to handle the response
+             itemshopQuery.send(function(itemshopResponse) {
+                if (itemshopResponse.isError()) {
+                    console.error('Error in query: ' + itemshopResponse.getMessage() + ' ' + itemshopResponse.getDetailedMessage());
+                    reject(itemshopResponse.getMessage());
+                    return;
+                }
+
+                var itemshopData = itemshopResponse.getDataTable();
+                const itemshopResults = [];
+                
+                for (let i = 0; i < itemshopData.getNumberOfRows(); i++) {
+                   var name = itemshopData.getValue(i, 0);
+                   var key = convertToKey(name); // Ensure scope matches your helper function
+                   var description = itemshopData.getValue(i, 1);
+                   var price = itemshopData.getValue(i, 2);
+                   var category = itemshopData.getValue(i, 3);
+                   var restriction = itemshopData.getValue(i, 4);
+                   
+                   itemshopResults.push({
+                       name: name, 
+                       shopitem_key: key, 
+                       description: description, 
+                       price: price, 
+                       category: category, 
+                       restriction: restriction
+                   });
+                }
+                
+                // This resolves the Promise, sending data back to drawAllSheets
+                resolve(itemshopResults); 
+             });
+          });
+        }
+        async function drawAllSheets() {
+          let shopitem_data_full = [];
+          
+          // 1. Fetch the main shopitem list
+          const shopitems_short = await fetchShopItemData();
+          if (shopitem_key === 0) {
+            // --- Table View Mode ---
+            document.getElementById("table-container").hidden = false;
+            let unique_shopitems = new Map();
+
+            // Aggregate unique shopitems and find the best single description
+            shopitems_short.forEach(shopitem => {
+                // If this is the first time seeing the shopitem_key, or this entry is "rarer"
+                if (!unique_shopitems.has(shopitem.shopitem_key) || (shopitem.price > unique_shopitems.get(shopitem.shopitem_key).price)) {
+                    unique_shopitems.set(shopitem.shopitem_key, shopitem);
+                }
+            });
+
+            let tableRows = [];
+            unique_shopitems.forEach((shopitem, key) => {
+                let shopitemUrl = '<a href="shopitems.html?i=' + key + '">' + shopitem.name + '</a>';
+                let thumbnailUrl = '<a href="shopitems.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/itemshop/' + key + '-200.jpg" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.jpg?text=No+Image\';" style="width:80px"></a>';
+                let categoryDisplay = Array.isArray(shopitem.category) ? shopitem.category.join(', ') : shopitem.category;
+                let restrictionDisplay = Array.isArray(shopitem.restriction) ? shopitem.restriction.join(', ') : shopitem.restriction;
+                tableRows.push([
+                    thumbnailUrl,
+                    shopitemUrl,
+                    shopitem.price,
+                    categoryDisplay,
+                    shopitem.description.slice(0, 200) + '...',
+                    restrictionDisplay
+                ]);
+            });
+
+            $('#data-table').DataTable( {
+              paging: true,
+              pageLength: 100,
+              order: [[2, 'desc']],
+              data: tableRows,
+              columns: [
+                { "title": "Image" },
+                { "title": "Name", "className": 'dt-body-left' },
+                { "title": "Price" }, 
+                { "title": "Category" }, 
+                { "title": "Description" }, 
+                { "title": "Restriction" }
+              ]
+            });
+            
+          } else {
+            // --- Single Shop Item View Mode ---
+            document.getElementById("shopitem-container").hidden = false;
+            
+            shopitem_data_full = shopitems_short.find(item => item.shopitem_key === shopitem_key);
+
+            // Safety check: What if the key doesn't exist?
+            if (!shopitem_data_full) {
+                document.getElementById("shopitem-body").innerHTML = "<p>Item not found.</p>";
+                return;
+            }
+            // 3. Populate the Single Shop Item View
+            document.getElementById("shopitem-title").innerText = shopitem_data_full.name;
+            let htmlContent = `
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <img src="https://epcarraway.blob.core.windows.net/dnd/itemshop/${shopitem_key}.jpg" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x400.jpg?text=No+Image';" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                        <h4 class="mb-3">${shopitem_data_full.name} (${shopitem_data_full.price === "Unknown" ? "Unknown Price" : shopitem_data_full.price})</h4>
+                    </div>
+                    <div class="col-md-8">
+                        <h2>Description & Lore</h2>
+                        <p>${shopitem_data_full.description.replace(/\n/g, "<br>")}</p>
+                        <hr>
+                        <p><strong>Category:</strong> ${Array.isArray(shopitem_data_full.category) ? shopitem_data_full.category.join(', ') : shopitem_data_full.category}</p>
+                        <p><strong>Restriction:</strong> ${Array.isArray(shopitem_data_full.restriction) ? shopitem_data_full.restriction.join(', ') : shopitem_data_full.restriction || 'none'}</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById("shopitem-body").innerHTML = htmlContent;
+          }
+        }
+      });
+     </script> 
+  </body>
+</html>
