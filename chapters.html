@@ -251,7 +251,8 @@
 
                         // 2. Escape regex characters and build a global pattern
                         const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                        const regex = new RegExp(`(${phrases.map(escapeRegExp).join('|')})`, 'g');
+                        const regex = new RegExp(`\\b(${phrases.map(escapeRegExp).join('|')})\\b`, 'g');
+                        // const regex = new RegExp(`(${phrases.map(escapeRegExp).join('|')})`, 'g');
 
                         // 3. Track which phrases have already been linked
                         const usedPhrases = new Set();
