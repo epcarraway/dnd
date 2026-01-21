@@ -129,7 +129,7 @@
                    var name = upgradeshopData.getValue(i, 0);
                    var key = convertToKey(name); // Ensure scope matches your helper function
                    var description = upgradeshopData.getValue(i, 1);
-                   var price = upgradeshopData.getValue(i, 2);
+                   var price = upgradeshopData.getValue(i, 2).toLocaleString();
                    var base_item = upgradeshopData.getValue(i, 3);
                    var owner = upgradeshopData.getValue(i, 4);
                    

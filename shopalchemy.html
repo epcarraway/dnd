@@ -129,7 +129,7 @@
                    var name = alchemyshopData.getValue(i, 0);
                    var key = convertToKey(name); // Ensure scope matches your helper function
                    var description = alchemyshopData.getValue(i, 1);
-                   var price = alchemyshopData.getValue(i, 2);
+                   var price = alchemyshopData.getValue(i, 2).toLocaleString();
                    var craft_dc = alchemyshopData.getValue(i, 3);
                    var ingredients = alchemyshopData.getValue(i, 4);
                    

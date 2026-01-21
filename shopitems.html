@@ -129,7 +129,7 @@
                    var name = itemshopData.getValue(i, 0);
                    var key = convertToKey(name); // Ensure scope matches your helper function
                    var description = itemshopData.getValue(i, 1);
-                   var price = itemshopData.getValue(i, 2);
+                   var price = itemshopData.getValue(i, 2).toLocaleString();
                    var category = itemshopData.getValue(i, 3);
                    var restriction = itemshopData.getValue(i, 4);
                    
