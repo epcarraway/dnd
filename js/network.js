@@ -77,9 +77,9 @@ function drawAllSheets() {
             var searchParams = new URLSearchParams(window.location.search);
             if (searchParams.has("charLabel")) {
                 var charLabel = searchParams.get("charLabel");
-                console.log(charLabel);
+                //console.log(charLabel);
                 var charId = nodelist.indexOf(charLabel);
-                console.log(charId);
+                //console.log(charId);
                 network.once("afterDrawing", function() {
                     var options = { 
                         nodes:[charId],

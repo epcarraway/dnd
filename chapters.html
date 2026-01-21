@@ -84,7 +84,7 @@
         google.charts.setOnLoadCallback(drawAllSheets);
         function drawAllSheets() {
           var tableRows = Array();
-          console.log(chapter);
+          //console.log(chapter);
           if (chapter==0) {
             document.getElementById("table-container").hidden = false;
             var chapterQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=chapters&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, D');
@@ -133,16 +133,16 @@
           } else {
             document.getElementById("chapter-container").hidden = false;
             var chapterMaxQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=chapters&headers=1&tq=' + encodeURIComponent('SELECT A ORDER BY A DESC LIMIT 1');
-            console.log(chapterMaxQueryString);
+            //console.log(chapterMaxQueryString);
             chapterMaxQuery = new google.visualization.Query(chapterMaxQueryString);
             chapterMaxQuery.send(chapterChartFunctionMax);
             function chapterChartFunctionMax (chapterResponse) {
                 // Get and data
                 var chapterData = chapterResponse.getDataTable();
                 var chapterNumberLast = chapterData.getValue(0, 0);
-                console.log(chapterNumberLast);
+                //console.log(chapterNumberLast);
                 var chapterQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=chapters&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, E WHERE A=' + chapter);
-                console.log(chapterQueryString);
+                //console.log(chapterQueryString);
                 chapterQuery = new google.visualization.Query(chapterQueryString);
                 chapterQuery.send(chapterChartFunction);
                 async function chapterChartFunction (chapterResponse) {
@@ -156,7 +156,7 @@
                     var narratedUrl = '<a href="https://epcarraway.blob.core.windows.net/dnd/ch' + chapterNumber + '.mp4">Chapter ' +  chapterNumber + ' Narrated Audio</a>'
                     var deepdiveUrl = '<a href="https://epcarraway.blob.core.windows.net/dnd/ch' + chapterNumber + 'd.aac">Chapter ' +  chapterNumber + ' Deep Dive Audio</a>'
                     var chapterNumberNext = Math.min(chapterNumber + 1, chapterNumberLast);
-                    console.log(chapterNumber, chapterName);
+                    //console.log(chapterNumber, chapterName);
                     document.getElementById("chapter-title").innerText = 'Chapter ' + chapterNumber + ': ' + chapterName;
                     '<a href="chapters.html?c=' + chapterNumber + '">' + chapterName + '</a>'
                     document.getElementById("chapter-arrows-left-top").innerHTML = ' / <a href="chapters.html?c=' + 1 + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>First</a>';
@@ -168,7 +168,7 @@
                     document.getElementById("chapter-arrows-right-bottom").innerHTML = ' / <a href="chapters.html?c=' + chapterNumberNext + '" class="text-decoration-none">Next<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a>';
                     document.getElementById("chapter-arrows-right-bottom").innerHTML += ' / <a href="chapters.html?c=' + chapterNumberLast + '" class="text-decoration-none">Last<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a> / ';
                     document.getElementById("chapter-body").innerHTML = narratedUrl + "<br>" + deepdiveUrl + "<br><br>" + chapterBody;
-                    console.log("test")
+                    //console.log("test")
                     async function fetchItemData(filename) {
                           // Placeholder for a full fetch function. In a real environment, this URL would be updated.
                           const res = await fetch(filename);
@@ -180,7 +180,7 @@
                             fetchItemData('https://epcarraway.blob.core.windows.net/dnd/org/organization_summaries.json'),
                             fetchItemData('https://epcarraway.blob.core.windows.net/dnd/item/item_summaries.json')
                         ]);
-                        console.log(characters_short)
+                        //console.log(characters_short)
                         // 2. Build Character Lookup Map (Name/Full Name -> char_key)
                         // We use a Map to handle case-insensitive matching if needed, but direct string matching is usually safer for generated data.
                         // This ensures if "Johnny 5" appears in the location list, we know his key is "johnny5"
@@ -321,8 +321,8 @@
                     };
                     
                     const targetDiv = document.getElementById('chapter-body');
-                    console.log(targetDiv)
-                    console.log(charLinkMap)
+                    //console.log(targetDiv)
+                    //console.log(charLinkMap)
                     const dndLinks = {
                         "Draconic Foresight": "https://roll20.net/compendium/dnd5e/Foresight",
                         "Ivira": "/npcs/ivira",

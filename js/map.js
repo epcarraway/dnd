@@ -205,7 +205,7 @@ function addPoint(lng2, lat2, customName = 'humanoid') {
     newMarkerId = 'marker_' + markerCount.toString();
     newContent = '<br /><button onclick="onMarkerButtonClick(' + "'" + newMarkerId + "'" + 
         ')" type="buttons" class="btn btn-danger" id="removePointId" style="margin: 2px;">Remove</button>';
-    console.log(newMarkerId);
+    //console.log(newMarkerId);
     L.marker([lat2, lng2],{
         icon: customIcon,
         riseOnHover: true, 
@@ -227,7 +227,7 @@ function onMarkerButtonClick(newMarkerId) {
         } catch(e) {
         };
         if (markerId == newMarkerId) {
-            console.log(newMarkerId);
+            //console.log(newMarkerId);
             Object.entries(layerGroup._layers)[i][1].remove();
         };
     };
@@ -235,7 +235,7 @@ function onMarkerButtonClick(newMarkerId) {
 
 // Add custom box layer
 function addBoxLayer(lng1, lat1, lng2, lat2, inputUrl) {
-    console.log(lng1, lat1, lng2, lat2, inputUrl);
+    //console.log(lng1, lat1, lng2, lat2, inputUrl);
     var lyr9 = L.layerGroup();
     lyr9.addTo(map);
     layerControl.addOverlay(lyr9, 'Custom 2');
@@ -256,7 +256,7 @@ function onMapRightClick(e) {
     ]
     
     var queryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=icons&headers=1&tq=' + encodeURIComponent('SELECT A, B, C');
-    console.log(queryString);
+    //console.log(queryString);
     query2 = new google.visualization.Query(queryString);
     query2.send(chartfunction);
     function chartfunction (response) {
@@ -264,10 +264,10 @@ function onMapRightClick(e) {
         var data = response.getDataTable();
         for (i=0; i<data.getNumberOfRows(); i++) {
             var iconName = data.getValue(i, 0);
-            console.log(iconName);
+            //console.log(iconName);
             icons.push(iconName);
         };
-        console.log(icons);
+        //console.log(icons);
     content = '<b>Add Icon</b><br><div>'
     chars = searchParams.get("chars").split(';')
     for (i = 0; i < chars.length; i++) {
@@ -309,12 +309,12 @@ map.on('moveend', function(e) {
 
 // Create box popup
 map.on('boxzoomend', function(e) {
-    console.log('end');
+    //console.log('end');
     var lat1 = e.boxZoomBounds._southWest.lat.toPrecision(7);
     var lng1 = e.boxZoomBounds._southWest.lng.toPrecision(7);
     var lat2 = e.boxZoomBounds._northEast.lat.toPrecision(7);
     var lng2 = e.boxZoomBounds._northEast.lng.toPrecision(7);
-    console.log(e.boxZoomBounds)
+    //console.log(e.boxZoomBounds)
     content = '<b>Option Menu</b><br><div>';
     content = content + '<input type="text" id="inputLayerUrl" class="form-control" placeholder="enter layer image url">';
     content = content + '<button onclick="addBoxLayer(' + 
@@ -336,7 +336,7 @@ function drawAllSheets() {
     var searchParams = new URLSearchParams(window.location.search);
     if (!searchParams.has("chars")) {
         var charQueryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=characters&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, D');
-        console.log(charQueryString);
+        //console.log(charQueryString);
         charQuery = new google.visualization.Query(charQueryString);
         charQuery.send(charChartFunction);
         function charChartFunction (charResponse) {
@@ -374,14 +374,14 @@ function drawAllSheets() {
                 var newchars2 = newchars2.join(';')
                 searchParams.set("chars", newchars2);
                 var newRelativePathQuery = window.location.pathname + '?' + searchParams.toString();
-                console.log(newRelativePathQuery)
+                //console.log(newRelativePathQuery)
                 window.location.replace(newRelativePathQuery)
             };
         };
     };
     // Create Google Sheets query
     var queryString = 'https://docs.google.com/spreadsheets/d/1aXGMp6uO6CVxMFS8kxHfm5EazdeVisL_riQtsVxaZUg/gviz/tq?sheet=points&headers=1&tq=' + encodeURIComponent('SELECT A, B, C, D, E');
-    console.log(queryString);
+    //console.log(queryString);
     var charIcon2 = L.icon({
         iconUrl: 'https://epcarraway.blob.core.windows.net/dnd/marker.png',
         iconSize:     [32, 64], 

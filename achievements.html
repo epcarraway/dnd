@@ -235,7 +235,6 @@
 
           ach_data_sorted = ach_data.sort((a, b) => b.a_num - a.a_num).sort((a, b) => b.ch_num - a.ch_num)
           if (chapter==0 || achievement==0) {
-            console.log("parsing single page response");
             document.getElementById("table-container").hidden = false;
             var chapterQueryString = '';
                 for (i=0; i<ach_data_sorted.length; i++) {
@@ -276,7 +275,6 @@
                   ]
                 } );
           } else {
-            console.log("parsing multi page response");
             document.getElementById("achievement-container").hidden = false;
             var ach_data_sorted = ach_data.sort((a, b) => a.a_num - b.a_num).sort((a, b) => a.ch_num - b.ch_num)
                 var achievementNumberIndexLast = ach_data_sorted.length - 1
@@ -302,7 +300,6 @@
                 var achievementNumberIndexNext = Math.min(achievementNumberIndex + 1, achievementNumberIndexLast);
                 var chapterNumberNext = ach_data_sorted[achievementNumberIndexNext].ch_num;
                 var achievementNumberNext = ach_data_sorted[achievementNumberIndexNext].a_num;
-                console.log("chapter: " + chapter, "achievement: " + achievement);
                 document.getElementById("achievement-title").innerText = 'Achievement ' + (achievementNumberIndex+1) + ': ' + achievementName;
                 '<a href="achievements.html?c=' + chapter + '&a=' + achievement + '">' + achievementName + '</a>'
                 document.getElementById("achievement-arrows-left-top").innerHTML = ' / <a href="achievements.html?c=' + 1 + '&a=' + 1 + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>First</a>';

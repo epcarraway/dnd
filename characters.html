@@ -267,7 +267,7 @@
           }
           char_data_sorted = char_data;
           if (char_key==0) {
-            console.log("parsing single page response");
+            //console.log("parsing single page response");
             document.getElementById("table-container").hidden = false;
                 for (i=0; i<char_data_sorted.length; i++) {
                   var characterKey = char_data_sorted[i].char_key;
@@ -283,7 +283,7 @@
                   var characterLocation = char_data_sorted[i].last_location_seen || "";
                   var characterOccupation = char_data_sorted[i].occupation || "";
                   var characterOrganization = char_data_sorted[i].organization || "";
-                  console.log(i,characterUrl)
+                  //console.log(i,characterUrl)
                   tableRows = tableRows.concat([[characterThumbnailUrl, chapterUrl, characterUrl, characterOccupation, characterOrganization, characterDescription, characterLocation, characterDate]]);
                 };
                 $('#data-table').DataTable( {
@@ -312,12 +312,12 @@
                   ]
                 } );
           } else {
-            console.log("parsing multi page response");
+            //console.log("parsing multi page response");
             document.getElementById("character-container").hidden = false;
 
             // 2. Load the specific character's full detail JSON (e.g., holyavenger.json)
             try {
-                console.log('https://epcarraway.blob.core.windows.net/dnd/char/' + char_key + '.json')
+                //console.log('https://epcarraway.blob.core.windows.net/dnd/char/' + char_key + '.json')
                 character_data_full = await fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/' + char_key + '.json');
                 if (character_data_full && character_data_full.character_chronology) {
                 // 2. Assign the value to the new key
@@ -360,7 +360,7 @@
             var characterKeyPrev = char_data_sorted[characterKeyIndexPrev].char_key;
             var characterKeyIndexNext = Math.min(characterKeyIndex + 1, characterKeyIndexLast);
             var characterKeyNext = char_data_sorted[characterKeyIndexNext].char_key;
-            console.log("char_key: " + char_key);
+            //console.log("char_key: " + char_key);
             document.getElementById("character-title").innerText = characterFullName;
             '<a href="characters.html?c=' + characterKeyIndex + '">' + characterFullName + '</a>'
             document.getElementById("character-arrows-left-top").innerHTML = ' / <a href="characters.html?c=' + characterKeyFirst + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>First</a>';
@@ -407,7 +407,7 @@
                 if (allyList.length > 0) {
                     allyDisplay = allyList.map(r => {
                         let rName = (r || "").trim().replace("Delnis Bricstane","Delnis Bricstan").replace(/ \(.*/,"");
-                        console.log(rName)
+                        //console.log(rName)
                         // Check if ally name exists in charLinkMap
                         if (charLinkMap.has(rName)) {
                             return `<li><a href="characters.html?c=${charLinkMap.get(rName)}">${rName}</a></li>`;
