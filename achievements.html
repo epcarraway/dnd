@@ -336,7 +336,7 @@
                         let rName = (r || "").trim();
                         // Check if character name exists in charLinkMap
                         if (charLinkMap.has(rName.replace("Tuuki Soltpetar", "Tuuki"))) {
-                            return `<a href="characters.html?i=${charLinkMap.get(rName)}">${rName}</a>`;
+                            return `<a href="characters.html?c=${charLinkMap.get(rName)}">${rName}</a>`;
                         }
                         return rName;
                     }).join(', ');
