@@ -46,6 +46,7 @@
               <th>body</th>
               <th>narrated audio</th>
               <th>deepdive audio</th>
+              <th>sportscast audio</th>
             </tr>
           </thead>
         </table>
@@ -100,9 +101,10 @@
                   var chapterUrl = '<a href="chapters.html?c=' + chapterNumber + '">' + chapterName + '</a>'
                   var narratedUrl = '<a href="https://epcarraway.blob.core.windows.net/dnd/ch' + chapterNumber + '.mp4">ch' +  chapterNumber + ' narrated audio</a>'
                   var deepdiveUrl = '<a href="https://epcarraway.blob.core.windows.net/dnd/ch' + chapterNumber + 'd.aac">ch' +  chapterNumber + ' deep dive audio</a>'
+                  var sportscastUrl = '<a href="https://epcarraway.blob.core.windows.net/dnd/ch' + chapterNumber + 's.aac">ch' +  chapterNumber + ' sports cast audio</a>'
                   var chapterDate = chapterData.getValue(i, 2);
                   var chapterBody = chapterData.getValue(i, 3);
-                  tableRows = tableRows.concat([[chapterThumbnailUrl, chapterNumber, chapterUrl, chapterDate, chapterBody, narratedUrl, deepdiveUrl]]);
+                  tableRows = tableRows.concat([[chapterThumbnailUrl, chapterNumber, chapterUrl, chapterDate, chapterBody, narratedUrl, deepdiveUrl, sportscastUrl]]);
                 };
                 $('#data-table').DataTable( {
                   paging: false,
@@ -127,6 +129,7 @@
                       "searchable": true },
                     { "title": "narrated audio" }, 
                     { "title": "deepdive audio" }, 
+                    { "title": "sportscast audio" }, 
                   ]
                 } );
             };
@@ -155,6 +158,7 @@
                     var chapterBody = chapterData.getValue(0, 3);
                     var narratedUrl = '<a href="https://epcarraway.blob.core.windows.net/dnd/ch' + chapterNumber + '.mp4">Chapter ' +  chapterNumber + ' Narrated Audio</a>'
                     var deepdiveUrl = '<a href="https://epcarraway.blob.core.windows.net/dnd/ch' + chapterNumber + 'd.aac">Chapter ' +  chapterNumber + ' Deep Dive Audio</a>'
+                    var sportscastUrl = '<a href="https://epcarraway.blob.core.windows.net/dnd/ch' + chapterNumber + 's.aac">Chapter ' +  chapterNumber + ' Sports Cast Audio</a>'
                     var chapterNumberNext = Math.min(chapterNumber + 1, chapterNumberLast);
                     //console.log(chapterNumber, chapterName);
                     document.getElementById("chapter-title").innerText = 'Chapter ' + chapterNumber + ': ' + chapterName;
@@ -167,7 +171,7 @@
                     document.getElementById("chapter-arrows-left-bottom").innerHTML += ' / <a href="chapters.html?c=' + chapterNumberPrev + '" class="text-decoration-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>Previous</a> / ';
                     document.getElementById("chapter-arrows-right-bottom").innerHTML = ' / <a href="chapters.html?c=' + chapterNumberNext + '" class="text-decoration-none">Next<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a>';
                     document.getElementById("chapter-arrows-right-bottom").innerHTML += ' / <a href="chapters.html?c=' + chapterNumberLast + '" class="text-decoration-none">Last<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"></path></svg></a> / ';
-                    document.getElementById("chapter-body").innerHTML = narratedUrl + "<br>" + deepdiveUrl + "<br><br>" + chapterBody;
+                    document.getElementById("chapter-body").innerHTML = narratedUrl + "<br>" + deepdiveUrl + "<br>" + sportscastUrl + "<br><br>" + chapterBody;
                     //console.log("test")
                     async function fetchItemData(filename) {
                           // Placeholder for a full fetch function. In a real environment, this URL would be updated.
