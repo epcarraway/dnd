@@ -211,7 +211,7 @@
                                     if (l.name && l.location_key) locLinkMap[l.name.trim()] = "locations.html?i=" + l.location_key.replace(",", "");
                                     if (Array.isArray(l.aliases)) {
                                         l.aliases.forEach(a => {
-                                            if (l.length >=3 && l.location_key) charLinkMap[a.trim()] = "locations.html?i=" + l.location_key;
+                                            if (a.length >=3 && l.location_key) locLinkMap[a.trim()] = "locations.html?i=" + l.location_key;
                                         });
                                     }
                             });
@@ -226,7 +226,7 @@
                                     if (l.name && l.item_key) itemLinkMap[l.name.trim()] = "items.html?i=" + l.item_key.replace(",", "");
                                     if (Array.isArray(l.aliases)) {
                                         l.aliases.forEach(a => {
-                                            if (l.length >=3 && l.item_key) charLinkMap[a.trim()] = "items.html?i=" + l.item_key;
+                                            if (a.length >=3 && l.item_key) itemLinkMap[a.trim()] = "items.html?i=" + l.item_key;
                                         });
                                     }
                             });
@@ -249,32 +249,34 @@
                      * Auto-links text, but only links each phrase ONCE per page load.
                      */
                     function autoLinkOnce(containerElement, linkMap) {
-                        // 1. Sort keys by length to handle sub-string matches correctly
+                        // 1. Sort keys by length (descending) 
+                        // This ensures "Apple Pie" is checked before "Apple"
                         const phrases = Object.keys(linkMap).sort((a, b) => b.length - a.length);
                         if (phrases.length === 0) return;
 
                         // 2. Escape regex characters and build a global pattern
                         const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        
+                        // Using capturing parentheses inside the regex ensures 'split' 
+                        // includes the matched phrase in the resulting array.
                         const regex = new RegExp(`\\b(${phrases.map(escapeRegExp).join('|')})\\b`, 'g');
-                        // const regex = new RegExp(`(${phrases.map(escapeRegExp).join('|')})`, 'g');
-
-                        // 3. Track which phrases have already been linked
+                        // 3. Track phrases that have already been linked globally
                         const usedPhrases = new Set();
 
-                        // 4. Create TreeWalker
+                        // 4. Collect all text nodes first 
+                        // (We collect them into an array to avoid issues with the live DOM changing)
                         const walker = document.createTreeWalker(
                             containerElement,
                             NodeFilter.SHOW_TEXT,
                             {
                                 acceptNode: function(node) {
-                                    // Skip existing links, scripts, etc.
-                                    if (['A', 'SCRIPT', 'STYLE'].includes(node.parentNode.tagName)) {
+                                    const parentTag = node.parentNode.tagName;
+                                    if (['A', 'SCRIPT', 'STYLE', 'TEXTAREA'].includes(parentTag)) {
                                         return NodeFilter.FILTER_REJECT;
                                     }
                                     return NodeFilter.FILTER_ACCEPT;
                                 }
-                            },
-                            false
+                            }
                         );
 
                         const nodesToReplace = [];
@@ -282,48 +284,52 @@
                             nodesToReplace.push(walker.currentNode);
                         }
 
-                        // 5. Process nodes
+                        // 5. Process nodes and perform replacements
                         for (const node of nodesToReplace) {
-                            // Optimization: Stop processing if we have linked every possible phrase
+                            // Stop if all phrases in the map have already been used
                             if (usedPhrases.size === phrases.length) break;
 
-                            // If the text doesn't match any of our phrases, skip expensive splitting
+                            const text = node.nodeValue;
                             regex.lastIndex = 0;
-                            if (!regex.test(node.nodeValue)) continue;
 
-                            const parts = node.nodeValue.split(regex);
+                            // Skip node if it doesn't contain any of our phrases
+                            if (!regex.test(text)) continue;
+
                             const fragment = document.createDocumentFragment();
-                            let modified = false; // Flag to check if we actually added a link in this node
+                            // Split text by the regex; capturing groups in regex mean 
+                            // the matches are included in the 'parts' array.
+                            const parts = text.split(regex);
+                            let wasModified = false;
 
                             parts.forEach(part => {
-                                // Check if it is a keyword AND if we haven't used it yet
-                                if (Object.prototype.hasOwnProperty.call(linkMap, part) && !usedPhrases.has(part)) {
+                                const lowerPart = part.toLowerCase(); // Optional: for case-insensitive lookup
+                                
+                                // Check if the part is one of our keywords and hasn't been used yet
+                                // We use the original 'part' to match the linkMap keys
+                                if (linkMap.hasOwnProperty(part) && !usedPhrases.has(part)) {
                                     const a = document.createElement('a');
                                     a.href = linkMap[part];
                                     a.textContent = part;
                                     a.target = "_blank";
-                                    a.style.color = "blue"; 
-                                    // a.style.fontWeight = "bold"; // Optional
+                                    a.className = "auto-link"; // Better than inline styles for maintenance
                                     
+                                    // Inline styles as per your original code:
+                                    a.style.color = "blue";
+                                    a.style.textDecoration = "underline";
+
                                     fragment.appendChild(a);
-                                    
-                                    // Mark this phrase as used so it won't be linked again
                                     usedPhrases.add(part);
-                                    modified = true;
+                                    wasModified = true;
                                 } else {
                                     fragment.appendChild(document.createTextNode(part));
                                 }
                             });
 
-                            // Only replace the DOM node if we actually inserted a new link.
-                            // This prevents breaking text nodes apart if they only contain 
-                            // keywords we have already linked previously.
-                            if (modified) {
+                            if (wasModified) {
                                 node.parentNode.replaceChild(fragment, node);
                             }
                         }
-                    };
-                    
+                    }
                     const targetDiv = document.getElementById('chapter-body');
                     //console.log(targetDiv)
                     //console.log(charLinkMap)
