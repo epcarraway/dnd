@@ -240,6 +240,7 @@
                 }
             }
             // 3. Populate the Single Item View
+            document.title = "Waterdeep - Organizations: " + organization_data_full.name;
             document.getElementById("organization-title").innerText = organization_data_full.name;
             // --- Pre-process Members for Hyperlinking ---
             let rawMembers = organization_data_full.members;

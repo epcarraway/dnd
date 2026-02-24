@@ -215,6 +215,7 @@
                 }
             }
             // 3. Populate the Single Item View
+            document.title = "Waterdeep - Items: " + (item_data_full.full_name || item_data_full.name);
             document.getElementById("item-title").innerText = (item_data_full.full_name || item_data_full.name);
 
             let htmlContent = `

@@ -176,9 +176,6 @@
                 let questUrl = '<a href="quests.html?i=' + key + '">' + quest.name + '</a>';
                 let thumbnailUrl = '<a href="quests.html?i=' + key + '"><img src="https://epcarraway.blob.core.windows.net/dnd/quest/' + key + '-200.jpg" onerror="this.onerror=null;this.src=\'https://via.placeholder.com/80x80.jpg?text=No+Image\';" style="width:80px"></a>';
                 let categoryDisplay = Array.isArray(quest.category) ? quest.category.join(', ') : quest.category;
-                //let statusDisplay = Array.isArray(quest.status) ? quest.status.join(', ') : quest.status;
-                //console.log(questUrl)
-                //console.log(statusDisplay)
                 tableRows.push([
                     thumbnailUrl,
                     chapterNumberUrl,
@@ -260,6 +257,7 @@
                 }
             }
             // 3. Populate the Single Item View
+            document.title = 'Waterdeep - Quests: ' + quest_data_full.name;
             document.getElementById("quest-title").innerText = quest_data_full.name;
 
             // --- Pre-process Originators for Hyperlinking ---
