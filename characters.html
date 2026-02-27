@@ -248,6 +248,11 @@
                       itemLinkMap.set(i.name.trim(), i.item_key.replace(",", ""));
                   }
                   if (i.full_name && i.item_key) itemLinkMap.set(i.full_name.trim(), i.item_key.replace(",", ""));
+                  if (Array.isArray(i.aliases)) {
+                      i.aliases.forEach(a => {
+                          if (a && i.item_key) itemLinkMap.set(a.trim(), i.item_key.replace(",", ""));
+                      });
+                  }
               });
           }
           // D. Org Map (Name -> org_key)

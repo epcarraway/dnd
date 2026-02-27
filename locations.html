@@ -271,7 +271,7 @@
             let leaderDisplay = "Unknown Leader";
             if (leadersList.length > 0) {
                 leaderDisplay = leadersList.map(l => {
-                    let name = (l || "").trim();
+                    let name = (l || "").trim().replace(/ \(.*/,"");
                     // Check if leader name exists in charLinkMap
                     if (charLinkMap.has(name)) {
                         return `<a href="characters.html?c=${charLinkMap.get(name)}">${name}</a>`;
@@ -340,7 +340,7 @@
                                     ${Array.isArray(location_data_full.characters) && (location_data_full.characters.length) > 0 ? 
                                         (location_data_full.characters).map(a => {
                                             // Extract the name whether 'a' is a string or object
-                                            let charName = (a.name || a).trim();
+                                            let charName = (a.name || a).trim().replace(/ \(.*/,"");
                                             // Check our map to see if we have a key for this name
                                             if (charLinkMap.has(charName)) {
                                                 return `<li><a href="characters.html?c=${charLinkMap.get(charName)}">${charName}</a></li>`;
@@ -357,7 +357,7 @@
                                     ${Array.isArray(location_data_full.creatures) && (location_data_full.creatures.length) > 0 ? 
                                         (location_data_full.creatures).map(a => {
                                             // Extract the name whether 'a' is a string or object
-                                            let charName = (a.name || a).trim();
+                                            let charName = (a.name || a).trim().replace(/ \(.*/,"");
                                             // Check our map to see if we have a key for this name
                                             if (charLinkMap.has(charName)) {
                                                 return `<li><a href="characters.html?c=${charLinkMap.get(charName)}">${charName}</a></li>`;

@@ -113,8 +113,9 @@
         async function drawAllSheets() {
           let organization_data_full = [];
           
-          const [organizations_short, char_data] = await Promise.all([
+          const [organizations_short, locations_short, char_data] = await Promise.all([
               fetchItemData('https://epcarraway.blob.core.windows.net/dnd/org/organizations_short.json'),
+              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/location/locations_short.json'),
               fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/character_summaries.json')
           ]);
           // 2. Build Character Lookup Map (Name/Full Name -> name_key)
@@ -131,6 +132,21 @@
                       c.aliases.forEach(a => {
                           if (a && c.char_key) charLinkMap.set(a.trim(), c.char_key);
                       });
+                  }
+              });
+          }
+          // B. Location Map (Name -> location_key)
+          let locLinkMap = new Map();
+          if (Array.isArray(locations_short)) {
+              locations_short.forEach(l => {
+                  if (l.name && l.location_key) {
+                      // We replace commas to match the URL format used in the Table View
+                      locLinkMap.set(l.name.trim(), l.location_key.replace(",", ""));
+                      if (Array.isArray(l.aliases)) {
+                          l.aliases.forEach(a => {
+                              if (a && l.location_key) locLinkMap.set(a.trim(), l.location_key.replace(",", ""));
+                          });
+                      }
                   }
               });
           }
@@ -260,6 +276,21 @@
                     return `<li>${rName}</li>`;
                 }).join('');
             }
+            // --- Pre-process Location for Hyperlinking ---
+            let rawLocations = organization_data_full.locations;
+            let locationList = Array.isArray(rawLocations) ? rawLocations : (rawLocations ? [rawLocations] : []);
+            
+            let locationDisplay = "";
+            if (locationList.length > 0) {
+                locationDisplay = locationList.map(r => {
+                    let rName = (r || "").trim();
+                    // Check if location name exists in locLinkMap
+                    if (locLinkMap.has(rName)) {
+                        return `<a href="locations.html?i=${locLinkMap.get(rName)}">${rName}</a>`;
+                    }
+                    return rName;
+                }).join(', ');
+            }
             // --- Pre-process Leaders for Hyperlinking ---
             let rawLeaders = organization_data_full.leaders || organization_data_full.leader;
             let leaderList = Array.isArray(rawLeaders) ? rawLeaders : (rawLeaders ? [rawLeaders] : []);
@@ -313,7 +344,7 @@
                           </div>
                         </div>
                         <p><strong>Appears In:</strong> Chapter <a href="chapters.html?c=${organization_data_full.first_ch_num}">${organization_data_full.first_ch_num}</a>${organization_data_full.first_ch_num === organization_data_full.last_ch_num ? '' : ` to Chapter <a href="chapters.html?c=${organization_data_full.last_ch_num}">${organization_data_full.last_ch_num}</a>`}</p>
-                        <p><strong>Location:</strong> ${Array.isArray(organization_data_full.locations) ? organization_data_full.locations.join(', ') : (organization_data_full.locations || '')}</p>
+                        <p><strong>Location:</strong> ${locationDisplay}</p>
                         <hr>
                         <h4>Members</h4>
                             <ul>
