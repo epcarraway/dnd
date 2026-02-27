@@ -248,7 +248,7 @@
             let memberDisplay = "";
             if (memberList.length > 0) {
                 memberDisplay = memberList.map(r => {
-                    let rName = (r || "").trim().replace("Delnis Bricstane","Delnis Bricstan").replace(/ \(.*/,"");
+                    let rName = (r || "").trim().replace("Delnis Bricstane","Delnis").replace(/ \(.*/,"");
                     //console.log(rName)
                     // Check if member name exists in charLinkMap
                     if (charLinkMap.has(rName)) {
@@ -266,7 +266,7 @@
             let leaderDisplay = "";
             if (leaderList.length > 0) {
                 leaderDisplay = leaderList.map(r => {
-                    let rName = (r || "").trim().replace("Delnis Bricstane","Delnis Bricstan").replace(/ \(.*/,"");
+                    let rName = (r || "").trim().replace("Delnis Bricstane","Delnis").replace(/ \(.*/,"");
                     //console.log(rName)
                     // Check if leader name exists in charLinkMap
                     if (charLinkMap.has(rName)) {

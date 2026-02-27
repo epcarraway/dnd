@@ -406,7 +406,7 @@
                 let allyDisplay = "";
                 if (allyList.length > 0) {
                     allyDisplay = allyList.map(r => {
-                        let rName = (r || "").trim().replace("Delnis Bricstane","Delnis Bricstan").replace(/ \(.*/,"");
+                        let rName = (r || "").trim().replace("Delnis Bricstane","Delnis").replace(/ \(.*/,"");
                         //console.log(rName)
                         // Check if ally name exists in charLinkMap
                         if (charLinkMap.has(rName)) {
@@ -424,7 +424,7 @@
                 let enemyDisplay = "";
                 if (enemyList.length > 0) {
                     enemyDisplay = enemyList.map(r => {
-                        let rName = (r || "").trim().replace("Delnis Bricstane","Delnis Bricstan").replace(/ \(.*/,"");
+                        let rName = (r || "").trim().replace("Delnis Bricstane","Delnis").replace(/ \(.*/,"");
                         // Check if enemy name exists in charLinkMap
                         if (charLinkMap.has(rName)) {
                             return `<li><a href="characters.html?c=${charLinkMap.get(rName)}">${rName}</a></li>`;
