@@ -200,11 +200,12 @@
         async function drawAllSheets() {
           var tableRows = Array();
           // 1. Fetch the main char list
-          const [organizations_short, locations_short, items_short, char_data] = await Promise.all([
+          const [organizations_short, locations_short, items_short, char_data, spells_short] = await Promise.all([
               fetchItemData('https://epcarraway.blob.core.windows.net/dnd/org/organizations_short.json'),
               fetchItemData('https://epcarraway.blob.core.windows.net/dnd/location/locations_short.json'),
               fetchItemData('https://epcarraway.blob.core.windows.net/dnd/item/items_short.json'),
-              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/character_summaries.json')
+              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/character_summaries.json'),
+              fetchItemData('https://epcarraway.blob.core.windows.net/dnd/spell/spells_short.json')
               //fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/characters.json')
           ]);
           // 2. Build Character Lookup Map (Name/Full Name -> char_key)
@@ -266,6 +267,22 @@
                   if (Array.isArray(c.aliases)) {
                       c.aliases.forEach(a => {
                           if (a && c.org_key) orgLinkMap.set(a.trim(), c.org_key);
+                      });
+                  }
+              });
+          }
+          // E. Spell Map (Name -> spell_key)
+          let spellLinkMap = new Map();
+          if (Array.isArray(spells_short)) {
+              spells_short.forEach(i => {
+                  if (i.name && i.spell_key) {
+                      // We replace commas to match the URL format used in the Table View
+                      spellLinkMap.set(i.name.trim(), i.spell_key.replace(",", ""));
+                  }
+                  if (i.full_name && i.spell_key) spellLinkMap.set(i.full_name.trim(), i.spell_key.replace(",", ""));
+                  if (Array.isArray(i.aliases)) {
+                      i.aliases.forEach(a => {
+                          if (a && i.spell_key) spellLinkMap.set(a.trim(), i.spell_key.replace(",", ""));
                       });
                   }
               });
@@ -457,6 +474,23 @@
                         return rName;
                     }).join('');
                 }
+                // --- Pre-process Spell for Hyperlinking ---
+                let rawSpells = character_data_full.abilities;
+                let spellList = Array.isArray(rawSpells) ? rawSpells : (rawSpells ? [rawSpells] : []);
+                
+                let spellDisplay = "";
+                if (spellList.length > 0) {
+                    spellDisplay = spellList.map(r => {
+                        let rName = (r || "").trim().replace(/ \(.*/,"");
+                        // Check if spell name exists in spellLinkMap
+                        if (spellLinkMap.has(rName)) {
+                            return `<li><a href="spells.html?i=${spellLinkMap.get(rName)}">${rName}</a></li>`;
+                        } else {
+                            return `<li>${rName}</li>`;
+                        }
+                        return rName;
+                    }).join('');
+                }
             let htmlContent = `
                 <div class="row">
                     <div class="col-md-4 text-center">
@@ -486,9 +520,7 @@
                           <div class="col-md-6">
                             <h4>Abilities</h4>
                             <ul>
-                                ${Array.isArray(character_data_full.abilities) && character_data_full.abilities.length > 0 ? 
-                                    character_data_full.abilities.map(a => `<li>${a}</li>`).join('') :
-                                    '<li>Unknown</li>'}
+                                ${spellDisplay}
                             </ul>
                           </div>
                           <div class="col-md-6">

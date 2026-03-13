@@ -173,11 +173,12 @@
                           const res = await fetch(filename);
                           return await res.json();
                       }
-                    const [locations_short, characters_short, organizations_short, items_short] = await Promise.all([
+                    const [locations_short, characters_short, organizations_short, items_short, spells_short] = await Promise.all([
                         fetchItemData('https://epcarraway.blob.core.windows.net/dnd/location/locations_short.json'),
                         fetchItemData('https://epcarraway.blob.core.windows.net/dnd/char/character_summaries.json'),
                         fetchItemData('https://epcarraway.blob.core.windows.net/dnd/org/organization_summaries.json'),
-                        fetchItemData('https://epcarraway.blob.core.windows.net/dnd/item/item_summaries.json')
+                        fetchItemData('https://epcarraway.blob.core.windows.net/dnd/item/item_summaries.json'),
+                        fetchItemData('https://epcarraway.blob.core.windows.net/dnd/spell/spells_short.json'),
                     ]);
 
                     // 1. Initialize a single combined Map
@@ -231,6 +232,19 @@
                             if (Array.isArray(o.aliases)) {
                                 o.aliases.forEach(a => {
                                     if (a.length >= 3 && o.org_key) masterLinkMap.set(a.trim(), "organizations.html?i=" + o.org_key);
+                                });
+                            }
+                        });
+                    }
+
+                    // 6. Populate Spells
+                    if (Array.isArray(spells_short)) {
+                        spells_short.forEach(o => {
+                            if (o.full_name && o.spell_key) masterLinkMap.set(o.full_name.trim(), "spells.html?i=" + o.spell_key);
+                            if (o.name && o.spell_key) masterLinkMap.set(o.name.trim(), "spells.html?i=" + o.spell_key);
+                            if (Array.isArray(o.aliases)) {
+                                o.aliases.forEach(a => {
+                                    if (a.length >= 3 && o.spell_key) masterLinkMap.set(a.trim(), "spells.html?i=" + o.spell_key);
                                 });
                             }
                         });
